@@ -11,16 +11,6 @@ app.get("/api/health", (req, res) => {
   res.json({ message: "Backend running 🚀" });
 });
 
-// 🔹 Servir frontend compilado
-const clientBuildPath = path.join(__dirname, "../../client/dist");
-
-app.use(express.static(clientBuildPath));
-
-// 🔹 Cualquier otra ruta → index.html (para React Router)
-app.get("*", (req, res) => {
-  res.sendFile(path.join(clientBuildPath, "index.html"));
-});
-
 // 🔹 Siempre lo último
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
