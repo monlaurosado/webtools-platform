@@ -14,6 +14,8 @@ app.get("/api/health", (req, res) => {
 // 🔹 Servir frontend (build de React)
 const clientBuildPath = path.join(__dirname, "../public");
 
+console.log("Serving static from:", clientBuildPath);
+
 app.use(express.static(clientBuildPath));
 
 // 🔹 Para cualquier ruta que no sea /api, devolver index.html
