@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import htmlRefactorRoutes from "./routes/tools/html-refactor.routes";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -10,6 +11,9 @@ app.use(express.json());
 app.get("/api/health", (req, res) => {
   res.json({ message: "Backend running 🚀" });
 });
+
+// 🔹 Tools API
+app.use("/api/tools/html-refactor", htmlRefactorRoutes);
 
 // 🔹 Servir frontend (build de React)
 const clientBuildPath = path.join(__dirname, "../public");
