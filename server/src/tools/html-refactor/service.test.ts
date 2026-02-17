@@ -55,7 +55,7 @@ describe("replaceAttributeValues", () => {
       "https://a.com": "https://b.com",
     });
 
-    const $ = cheerio.load(result, { decodeEntities: false }, false);
+    const $ = cheerio.load(result, undefined, false);
     expect($("a").eq(0).attr("href")).toBe("https://b.com");
     expect($("a").eq(1).attr("href")).toBe("https://a.com/extra");
     expect($("img").attr("src")).toBe("https://a.com");

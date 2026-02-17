@@ -1,34 +1,47 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Navigate, Route, Routes, useParams } from 'react-router-dom'
+import MainLayout from './layout/MainLayout'
+import Dashboard from './pages/Dashboard'
+import { tools } from './registry/tools'
+import HtmlRefactorPage from './tools/html-refactor/HtmlRefactorPage'
 
-function App() {
-  const [count, setCount] = useState(0)
+function ToolRoutePage() {
+  const { toolId } = useParams()
+  const tool = tools.find((item) => item.id === toolId)
+
+  if (!tool) {
+    return (
+      <section className="tool-placeholder">
+        <h2>Tool not found</h2>
+        <p>The requested module is not currently available in the registry.</p>
+      </section>
+    )
+  }
+
+  if (tool.id === 'html-refactor') {
+    return <HtmlRefactorPage />
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <section className="tool-placeholder">
+      <p className="tool-placeholder-kicker">Module</p>
+      <h2>{tool.name}</h2>
+      <p>{tool.description}</p>
+      <p>This view is ready and reserved for the full tool implementation.</p>
+    </section>
+  )
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/tools/:toolId" element={<ToolRoutePage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   )
 }
 

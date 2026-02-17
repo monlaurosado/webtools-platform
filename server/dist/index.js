@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const path_1 = __importDefault(require("path"));
+const html_refactor_routes_1 = __importDefault(require("./routes/tools/html-refactor.routes"));
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3001;
 app.use(express_1.default.json());
@@ -12,6 +13,8 @@ app.use(express_1.default.json());
 app.get("/api/health", (req, res) => {
     res.json({ message: "Backend running 🚀" });
 });
+// 🔹 Tools API
+app.use("/api/tools/html-refactor", html_refactor_routes_1.default);
 // 🔹 Servir frontend (build de React)
 const clientBuildPath = path_1.default.join(__dirname, "../public");
 console.log("Serving static from:", clientBuildPath);

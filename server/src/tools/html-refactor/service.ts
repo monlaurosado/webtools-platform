@@ -19,7 +19,7 @@ const isDocumentHtml = (html: string): boolean => {
 
 const loadHtml = (html: string): { $: cheerio.CheerioAPI; isDocument: boolean } => {
   const isDocument = isDocumentHtml(html);
-  const $ = cheerio.load(html, { decodeEntities: false }, isDocument);
+  const $ = cheerio.load(html, undefined, isDocument);
   return { $, isDocument };
 };
 
