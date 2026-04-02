@@ -31,10 +31,11 @@ function Sidebar({
         <div className="sidebar-top">
           <div className="brand">
             <div className="brand-mark">WT</div>
-            <div>
-              <h1 className="sidebar-title">WebTools Platform</h1>
-              <p className="sidebar-subtitle">Professional utility workspace</p>
-            </div>
+          </div>
+
+          <div className="title-mark">
+            <h1 className="sidebar-title">WebTools Platform</h1>
+            <p className="sidebar-subtitle">Professional utility workspace</p>
           </div>
 
           <div className="sidebar-top-actions">
