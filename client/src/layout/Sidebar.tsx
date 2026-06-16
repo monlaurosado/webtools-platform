@@ -1,5 +1,7 @@
 import { NavLink } from 'react-router-dom'
-import { tools } from '../registry/tools'
+import { useLanguage } from '../i18n/LanguageContext'
+import { getCategoryName, getToolCadence, getToolName } from '../i18n/toolText'
+import { toolCategories, tools } from '../registry/tools'
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -21,6 +23,35 @@ function Sidebar({
   onClose,
   onToggleDesktopCollapse,
 }: SidebarProps) {
+  const { language } = useLanguage()
+  const copy = {
+    subtitle:
+      language === 'es'
+        ? 'Consola para operaciones de marketing y control web'
+        : 'Console for marketing ops and web QA',
+    expandNavigation:
+      language === 'es' ? 'Expandir navegación lateral' : 'Expand sidebar navigation',
+    collapseNavigation:
+      language === 'es' ? 'Contraer navegación lateral' : 'Collapse sidebar navigation',
+    expandMenu: language === 'es' ? 'Expandir menú' : 'Expand menu',
+    collapseMenu: language === 'es' ? 'Contraer menú' : 'Collapse menu',
+    closeNavigation: language === 'es' ? 'Cerrar navegación' : 'Close navigation',
+    mainNavigation: language === 'es' ? 'Navegación principal' : 'Main navigation',
+    overview: language === 'es' ? 'Inicio' : 'Home',
+    dashboard: language === 'es' ? 'Consola' : 'Console',
+    dashboardCaption:
+      language === 'es' ? 'Prioriza el flujo correcto' : 'Choose the right workflow',
+    footerTitle: language === 'es' ? 'v0.1.0 privado' : 'v0.1.0 private',
+    footer: language === 'es' ? 'Sin almacenamiento de proyectos' : 'No project storage',
+  }
+
+  const groupedTools = toolCategories
+    .map((category) => ({
+      category,
+      tools: tools.filter((tool) => tool.category === category.id),
+    }))
+    .filter((group) => group.tools.length > 0)
+
   return (
     <>
       <aside
@@ -35,7 +66,7 @@ function Sidebar({
 
           <div className="title-mark">
             <h1 className="sidebar-title">WebTools Platform</h1>
-            <p className="sidebar-subtitle">Professional utility workspace</p>
+            <p className="sidebar-subtitle">{copy.subtitle}</p>
           </div>
 
           <div className="sidebar-top-actions">
@@ -44,9 +75,9 @@ function Sidebar({
               type="button"
               onClick={onToggleDesktopCollapse}
               aria-label={
-                isDesktopCollapsed ? 'Expand sidebar navigation' : 'Collapse sidebar navigation'
+                isDesktopCollapsed ? copy.expandNavigation : copy.collapseNavigation
               }
-              title={isDesktopCollapsed ? 'Expand menu' : 'Collapse menu'}
+              title={isDesktopCollapsed ? copy.expandMenu : copy.collapseMenu}
             >
               {isDesktopCollapsed ? (
                 <ChevronRightIcon className="control-icon" />
@@ -58,15 +89,15 @@ function Sidebar({
               className="mobile-close-btn"
               type="button"
               onClick={onClose}
-              aria-label="Close navigation"
+              aria-label={copy.closeNavigation}
             >
               <CloseIcon className="control-icon" />
             </button>
           </div>
         </div>
 
-        <nav className="sidebar-nav" aria-label="Main navigation">
-          <p className="sidebar-section-label">Overview</p>
+        <nav className="sidebar-nav" aria-label={copy.mainNavigation}>
+          <p className="sidebar-section-label">{copy.overview}</p>
           <NavLink
             to="/"
             end
@@ -74,44 +105,52 @@ function Sidebar({
               `sidebar-link ${isActive ? 'is-active' : ''}`
             }
             onClick={onClose}
-            data-label="Dashboard"
-            title="Dashboard"
+            data-label={copy.dashboard}
+            title={copy.dashboard}
           >
             <span className="sidebar-link-icon" aria-hidden="true">
               <DashboardIcon />
             </span>
             <span className="sidebar-link-copy">
-              <span className="sidebar-link-title">Dashboard</span>
-              <span className="sidebar-link-caption">Platform overview</span>
+              <span className="sidebar-link-title">{copy.dashboard}</span>
+              <span className="sidebar-link-caption">{copy.dashboardCaption}</span>
             </span>
           </NavLink>
 
-          <p className="sidebar-section-label">Tools</p>
-          {tools.map((tool) => (
-            <NavLink
-              key={tool.id}
-              to={tool.path}
-              className={({ isActive }) =>
-                `sidebar-link ${isActive ? 'is-active' : ''}`
-              }
-              onClick={onClose}
-              data-label={tool.name}
-              title={tool.name}
-            >
-              <span className="sidebar-link-icon" aria-hidden="true">
-                <ToolIcon toolIcon={tool.icon} />
-              </span>
-              <span className="sidebar-link-copy">
-                <span className="sidebar-link-title">{tool.name}</span>
-                <span className="sidebar-link-caption">{tool.id}</span>
-              </span>
-            </NavLink>
+          {groupedTools.map(({ category, tools: categoryTools }) => (
+            <div className="sidebar-category" key={category.id}>
+              <p className="sidebar-section-label">{getCategoryName(category, language)}</p>
+              {categoryTools.map((tool) => (
+                <NavLink
+                  key={tool.id}
+                  to={tool.path}
+                  className={({ isActive }) =>
+                    `sidebar-link ${tool.priority === 'flagship' ? 'is-flagship' : ''} ${
+                      isActive ? 'is-active' : ''
+                    }`
+                  }
+                  onClick={onClose}
+                  data-label={getToolName(tool, language)}
+                  title={getToolName(tool, language)}
+                >
+                  <span className="sidebar-link-icon" aria-hidden="true">
+                    <ToolIcon toolIcon={tool.icon} />
+                  </span>
+                  <span className="sidebar-link-copy">
+                    <span className="sidebar-link-title">{getToolName(tool, language)}</span>
+                    <span className="sidebar-link-caption">
+                      {getToolCadence(tool, language)}
+                    </span>
+                  </span>
+                </NavLink>
+              ))}
+            </div>
           ))}
         </nav>
 
         <div className="sidebar-footer">
-          <p>v0.1.0</p>
-          <p>Ready for new modules</p>
+          <p>{copy.footerTitle}</p>
+          <p>{copy.footer}</p>
         </div>
       </aside>
 
@@ -119,7 +158,7 @@ function Sidebar({
         className={`sidebar-backdrop ${isOpen ? 'is-visible' : ''}`}
         type="button"
         onClick={onClose}
-        aria-label="Close navigation"
+        aria-label={copy.closeNavigation}
       />
     </>
   )

@@ -1,3 +1,4 @@
+import { useLanguage } from '../../../i18n/LanguageContext'
 import type { ReplacementEntry } from '../types'
 
 interface ReplacementListProps {
@@ -11,22 +12,35 @@ function ReplacementList({
   onReplacementChange,
   onToggleIgnored,
 }: ReplacementListProps) {
+  const { language } = useLanguage()
+  const copy = {
+    title: language === 'es' ? '2) Define reemplazos' : '2) Define replacements',
+    description:
+      language === 'es'
+        ? 'Para cada enlace detectado, define un nuevo valor o usa "Omitir" para mantener el original.'
+        : 'For each detected link, define a new value or use "Skip" to keep the original.',
+    empty:
+      language === 'es'
+        ? 'Todavía no se detectaron enlaces para el atributo seleccionado.'
+        : 'No links have been detected for the selected attribute yet.',
+    original: language === 'es' ? 'Original' : 'Original',
+    replaceWith: language === 'es' ? 'Reemplazar por' : 'Replace with',
+    placeholder: language === 'es' ? 'Nuevo enlace' : 'New link',
+    include: language === 'es' ? 'Incluir' : 'Include',
+    skip: language === 'es' ? 'Omitir' : 'Skip',
+  }
+
   return (
     <section className="tool-panel">
       <header className="panel-head">
         <div>
-          <h3>2) Define reemplazos</h3>
-          <p>
-            Para cada enlace detectado, define un nuevo valor o usa "Omitir" para
-            mantener el original.
-          </p>
+          <h3>{copy.title}</h3>
+          <p>{copy.description}</p>
         </div>
       </header>
 
       {entries.length === 0 ? (
-        <p className="panel-empty">
-          Todavia no se detectaron enlaces para el atributo seleccionado.
-        </p>
+        <p className="panel-empty">{copy.empty}</p>
       ) : (
         <div className="replacement-list">
           {entries.map((entry, index) => (
@@ -35,12 +49,12 @@ function ReplacementList({
               className={`replacement-row ${entry.ignored ? 'is-ignored' : ''}`}
             >
               <div className="row-original">
-                <p>Original</p>
+                <p>{copy.original}</p>
                 <code>{entry.original}</code>
               </div>
 
               <div className="row-target">
-                <label htmlFor={`replace-value-${index}`}>Reemplazar por</label>
+                <label htmlFor={`replace-value-${index}`}>{copy.replaceWith}</label>
                 <input
                   id={`replace-value-${index}`}
                   type="text"
@@ -49,7 +63,7 @@ function ReplacementList({
                     onReplacementChange(entry.original, event.target.value)
                   }
                   disabled={entry.ignored}
-                  placeholder="Nuevo enlace"
+                  placeholder={copy.placeholder}
                 />
               </div>
 
@@ -58,7 +72,7 @@ function ReplacementList({
                 className={`omit-btn ${entry.ignored ? 'is-active' : ''}`}
                 onClick={() => onToggleIgnored(entry.original)}
               >
-                {entry.ignored ? 'Incluir' : 'Omitir'}
+                {entry.ignored ? copy.include : copy.skip}
               </button>
             </article>
           ))}

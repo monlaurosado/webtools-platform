@@ -1,6 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { tools } from '../registry/tools'
+import { useLanguage } from '../i18n/LanguageContext'
+import {
+  getCategoryName,
+  getToolBestFor,
+  getToolCadence,
+  getToolDescription,
+  getToolName,
+  getToolValue,
+} from '../i18n/toolText'
+import { toolCategories, tools } from '../registry/tools'
 import { DashboardIcon, MenuIcon, SearchIcon, ToolIcon } from '../ui/icons'
 
 interface HeaderProps {
@@ -10,29 +19,63 @@ interface HeaderProps {
 function Header({ onMenuClick }: HeaderProps) {
   const { pathname } = useLocation()
   const navigate = useNavigate()
+  const { language, setLanguage } = useLanguage()
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const searchWrapRef = useRef<HTMLDivElement | null>(null)
+  const copy = {
+    dashboard: language === 'es' ? 'Consola operativa' : 'Operations console',
+    dashboardDescription:
+      language === 'es'
+        ? 'Lanzamientos, leads, seguimiento y control técnico'
+        : 'Launches, leads, tracking and technical QA',
+    workspace: language === 'es' ? 'Espacio de trabajo' : 'Workspace',
+    workspaceDescription:
+      language === 'es'
+        ? 'Utilidades modulares para flujos web'
+        : 'Modular utilities for web workflows',
+    openNavigation: language === 'es' ? 'Abrir navegación' : 'Open navigation',
+    searchPlaceholder:
+      language === 'es'
+        ? 'Buscar por herramienta o tarea...'
+        : 'Search by tool or job...',
+    searchResults: language === 'es' ? 'Resultados de búsqueda' : 'Search results',
+    noResults: language === 'es' ? 'Sin resultados' : 'No results',
+    language: language === 'es' ? 'Idioma' : 'Language',
+    privacy: language === 'es' ? 'Sin almacenamiento' : 'No storage',
+    dashboardMeta: language === 'es' ? 'Cartera y flujos rápidos' : 'Portfolio and fast workflows',
+  }
 
   const searchItems = useMemo(
     () => [
       {
         id: 'dashboard',
-        name: 'Dashboard',
-        description: 'Vista principal de herramientas',
+        name: copy.dashboard,
+        description: copy.dashboardDescription,
+        meta: copy.dashboardMeta,
         path: '/',
         type: 'dashboard' as const,
       },
-      ...tools.map((tool) => ({
-        id: tool.id,
-        name: tool.name,
-        description: tool.description,
-        path: tool.path,
-        icon: tool.icon,
-        type: 'tool' as const,
-      })),
+      ...tools.map((tool) => {
+        const category = toolCategories.find((item) => item.id === tool.category)
+        const categoryName = category ? getCategoryName(category, language) : ''
+        const bestFor = getToolBestFor(tool, language)
+        const cadence = getToolCadence(tool, language)
+        const value = getToolValue(tool, language)
+
+        return {
+          id: tool.id,
+          name: getToolName(tool, language),
+          description: getToolDescription(tool, language),
+          meta: [categoryName, bestFor].filter(Boolean).join(' / '),
+          path: tool.path,
+          icon: tool.icon,
+          type: 'tool' as const,
+          haystack: [tool.id, categoryName, bestFor, cadence, value].join(' '),
+        }
+      }),
     ],
-    [],
+    [language],
   )
 
   const filteredItems = useMemo(() => {
@@ -42,7 +85,9 @@ function Header({ onMenuClick }: HeaderProps) {
     }
 
     return searchItems.filter((item) => {
-      const haystack = `${item.name} ${item.description} ${item.id}`.toLowerCase()
+      const haystack = `${item.name} ${item.description} ${item.meta} ${
+        'haystack' in item ? item.haystack : item.id
+      }`.toLowerCase()
       return haystack.includes(query)
     })
   }, [searchItems, searchQuery])
@@ -65,8 +110,8 @@ function Header({ onMenuClick }: HeaderProps) {
   const headerData = useMemo(() => {
     if (pathname === '/') {
       return {
-        title: 'Dashboard',
-        subtitle: 'Control center for your tool stack',
+        title: copy.dashboard,
+        subtitle: copy.dashboardDescription,
       }
     }
 
@@ -74,16 +119,16 @@ function Header({ onMenuClick }: HeaderProps) {
 
     if (activeTool) {
       return {
-        title: activeTool.name,
-        subtitle: activeTool.description,
+        title: getToolName(activeTool, language),
+        subtitle: getToolValue(activeTool, language),
       }
     }
 
     return {
-      title: 'Workspace',
-      subtitle: 'Modular utilities for web workflows',
+      title: copy.workspace,
+      subtitle: copy.workspaceDescription,
     }
-  }, [pathname])
+  }, [language, pathname])
 
   const goToPath = (path: string) => {
     navigate(path)
@@ -98,7 +143,7 @@ function Header({ onMenuClick }: HeaderProps) {
           className="menu-btn"
           type="button"
           onClick={onMenuClick}
-          aria-label="Open navigation"
+          aria-label={copy.openNavigation}
         >
           <MenuIcon className="control-icon" />
         </button>
@@ -117,7 +162,7 @@ function Header({ onMenuClick }: HeaderProps) {
             <input
               id="tool-search"
               name="tool-search"
-              placeholder="Buscar herramienta..."
+              placeholder={copy.searchPlaceholder}
               value={searchQuery}
               onFocus={() => setIsSearchOpen(true)}
               onChange={(event) => setSearchQuery(event.target.value)}
@@ -133,9 +178,13 @@ function Header({ onMenuClick }: HeaderProps) {
           </label>
 
           {isSearchOpen ? (
-            <div className="header-search-results" role="listbox" aria-label="Resultados de busqueda">
+            <div
+              className="header-search-results"
+              role="listbox"
+              aria-label={copy.searchResults}
+            >
               {filteredItems.length === 0 ? (
-                <p className="header-search-empty">Sin resultados</p>
+                <p className="header-search-empty">{copy.noResults}</p>
               ) : (
                 filteredItems.slice(0, 6).map((item) => (
                   <button
@@ -153,7 +202,7 @@ function Header({ onMenuClick }: HeaderProps) {
                     </span>
                     <span className="header-search-item-copy">
                       <strong>{item.name}</strong>
-                      <small>{item.description}</small>
+                      <small>{item.meta || item.description}</small>
                     </span>
                   </button>
                 ))
@@ -161,7 +210,18 @@ function Header({ onMenuClick }: HeaderProps) {
             </div>
           ) : null}
         </div>
-        <span className="status-pill">Online</span>
+        <label className="language-select" htmlFor="language-select">
+          <span>{copy.language}</span>
+          <select
+            id="language-select"
+            value={language}
+            onChange={(event) => setLanguage(event.target.value === 'es' ? 'es' : 'en')}
+          >
+            <option value="en">EN</option>
+            <option value="es">ES</option>
+          </select>
+        </label>
+        <span className="status-pill">{copy.privacy}</span>
       </div>
     </header>
   )

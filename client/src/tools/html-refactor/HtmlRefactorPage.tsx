@@ -1,10 +1,38 @@
+import { useLanguage } from '../../i18n/LanguageContext'
 import HtmlInputPanel from './components/HtmlInputPanel'
 import ReplacementList from './components/ReplacementList'
 import ResultPanel from './components/ResultPanel'
 import { useHtmlRefactor } from './hooks/useHtmlRefactor'
 import './html-refactor.css'
 
+const COPY = {
+  en: {
+    eyebrow: 'HTML Attribute Refactor',
+    title: 'Extract and replace links in bulk',
+    descriptionStart: 'Supports',
+    descriptionMiddle: 'and',
+    descriptionEnd:
+      'attributes. You can skip individual links and apply only the changes you need.',
+    applying: 'Applying...',
+    apply: 'Apply changes',
+    note: 'Skipped or empty links stay unchanged.',
+  },
+  es: {
+    eyebrow: 'Refactorización de atributos HTML',
+    title: 'Extrae y reemplaza enlaces de forma masiva',
+    descriptionStart: 'Compatible con atributos',
+    descriptionMiddle: 'y',
+    descriptionEnd:
+      'Puedes omitir enlaces individuales y aplicar solo los cambios que necesites.',
+    applying: 'Aplicando...',
+    apply: 'Aplicar cambios',
+    note: 'Los enlaces omitidos o vacíos se mantienen sin cambios.',
+  },
+} as const
+
 function HtmlRefactorPage() {
+  const { language } = useLanguage()
+  const copy = COPY[language]
   const {
     html,
     attribute,
@@ -28,11 +56,13 @@ function HtmlRefactorPage() {
   return (
     <section className="html-refactor-page">
       <header className="tool-header">
-        <p className="tool-eyebrow">HTML Attribute Refactor</p>
-        <h2>Extrae y reemplaza enlaces de forma masiva</h2>
+        <p className="tool-eyebrow">{copy.eyebrow}</p>
+        <h2>{copy.title}</h2>
         <p>
-          Compatible con atributos <code>href</code> y <code>src</code>. Puedes
-          omitir enlaces individuales y aplicar solo los cambios que necesites.
+          {copy.descriptionStart} <code>href</code> {copy.descriptionMiddle}{' '}
+          <code>src</code>
+          {language === 'es' ? '. ' : ' '}
+          {copy.descriptionEnd}
         </p>
       </header>
 
@@ -61,9 +91,9 @@ function HtmlRefactorPage() {
           }}
           disabled={isApplying || isExtracting || html.trim().length === 0}
         >
-          {isApplying ? 'Aplicando...' : 'Aplicar cambios'}
+          {isApplying ? copy.applying : copy.apply}
         </button>
-        <p>Los enlaces omitidos o vacios se mantienen sin cambios.</p>
+        <p>{copy.note}</p>
       </div>
 
       {applyError ? <p className="tool-error">{applyError}</p> : null}

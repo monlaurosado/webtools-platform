@@ -1,3 +1,4 @@
+import { useLanguage } from '../../../i18n/LanguageContext'
 import type { HtmlAttribute } from '../types'
 
 interface AttributeSelectorProps {
@@ -6,8 +7,14 @@ interface AttributeSelectorProps {
 }
 
 function AttributeSelector({ value, onChange }: AttributeSelectorProps) {
+  const { language } = useLanguage()
+
   return (
-    <div className="attr-selector" role="group" aria-label="Attribute selector">
+    <div
+      className="attr-selector"
+      role="group"
+      aria-label={language === 'es' ? 'Selector de atributo' : 'Attribute selector'}
+    >
       <button
         type="button"
         className={`attr-option ${value === 'href' ? 'is-active' : ''}`}

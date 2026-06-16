@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useLanguage } from '../../../i18n/LanguageContext'
+import { readApiErrorMessage } from '../../../i18n/messages'
 import type {
   CopyState,
   ExtractResponse,
@@ -15,33 +17,39 @@ const DEFAULT_ROW_STATE: ReplacementRowState = {
   ignored: false,
 }
 
-const readFileAsText = (file: File): Promise<string> =>
+const COPY = {
+  en: {
+    readFileError: 'Could not read the HTML file.',
+    extractError: 'Could not extract links.',
+    loadFileError: 'Could not load the file.',
+    emptyApplyError: 'Load or paste HTML before applying changes.',
+    invalidResponse: 'Invalid response from server.',
+    applyError: 'Could not apply changes.',
+  },
+  es: {
+    readFileError: 'No se pudo leer el archivo HTML.',
+    extractError: 'No se pudieron extraer enlaces.',
+    loadFileError: 'No se pudo cargar el archivo.',
+    emptyApplyError: 'Debes cargar o pegar HTML antes de aplicar cambios.',
+    invalidResponse: 'Respuesta inválida del servidor.',
+    applyError: 'No se pudieron aplicar los cambios.',
+  },
+} as const
+
+const readFileAsText = (file: File, errorMessage: string): Promise<string> =>
   new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = () => {
       const value = reader.result
       if (typeof value !== 'string') {
-        reject(new Error('No se pudo leer el archivo HTML.'))
+        reject(new Error(errorMessage))
         return
       }
       resolve(value)
     }
-    reader.onerror = () => reject(new Error('No se pudo leer el archivo HTML.'))
+    reader.onerror = () => reject(new Error(errorMessage))
     reader.readAsText(file)
   })
-
-const readErrorMessage = async (response: Response): Promise<string> => {
-  try {
-    const payload = (await response.json()) as { error?: unknown }
-    if (typeof payload.error === 'string' && payload.error.trim().length > 0) {
-      return payload.error
-    }
-  } catch {
-    // no-op
-  }
-
-  return `Request failed with status ${response.status}.`
-}
 
 const normalizeValues = (values: unknown): string[] => {
   if (!Array.isArray(values)) {
@@ -52,6 +60,8 @@ const normalizeValues = (values: unknown): string[] => {
 }
 
 export const useHtmlRefactor = () => {
+  const { language } = useLanguage()
+  const copy = COPY[language]
   const [html, setHtmlState] = useState('')
   const [attribute, setAttribute] = useState<HtmlAttribute>('href')
   const [extractedValues, setExtractedValues] = useState<string[]>([])
@@ -112,7 +122,7 @@ export const useHtmlRefactor = () => {
           })
 
           if (!response.ok) {
-            throw new Error(await readErrorMessage(response))
+            throw new Error(await readApiErrorMessage(response, language))
           }
 
           const payload = (await response.json()) as ExtractResponse
@@ -127,7 +137,7 @@ export const useHtmlRefactor = () => {
           }
 
           const message =
-            error instanceof Error ? error.message : 'No se pudieron extraer enlaces.'
+            error instanceof Error ? error.message : copy.extractError
           setExtractError(message)
           setExtractedValues([])
         } finally {
@@ -143,7 +153,7 @@ export const useHtmlRefactor = () => {
       controller.abort()
       window.clearTimeout(timerId)
     }
-  }, [html, attribute])
+  }, [attribute, copy.extractError, html, language])
 
   useEffect(() => {
     setRows((previousRows) => {
@@ -198,18 +208,17 @@ export const useHtmlRefactor = () => {
     }
 
     try {
-      const nextHtml = await readFileAsText(file)
+      const nextHtml = await readFileAsText(file, copy.readFileError)
       setHtml(nextHtml)
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'No se pudo cargar el archivo.'
+      const message = error instanceof Error ? error.message : copy.loadFileError
       setExtractError(message)
     }
   }
 
   const applyChanges = async () => {
     if (html.trim().length === 0) {
-      setApplyError('Debes cargar o pegar un HTML antes de aplicar cambios.')
+      setApplyError(copy.emptyApplyError)
       return
     }
 
@@ -245,19 +254,18 @@ export const useHtmlRefactor = () => {
       })
 
       if (!response.ok) {
-        throw new Error(await readErrorMessage(response))
+        throw new Error(await readApiErrorMessage(response, language))
       }
 
       const payload = (await response.json()) as ReplaceResponse
       if (typeof payload.html !== 'string') {
-        throw new Error('Invalid response from server.')
+        throw new Error(copy.invalidResponse)
       }
 
       setResultHtml(payload.html)
       setCopyState('idle')
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'No se pudieron aplicar los cambios.'
+      const message = error instanceof Error ? error.message : copy.applyError
       setApplyError(message)
     } finally {
       setIsApplying(false)

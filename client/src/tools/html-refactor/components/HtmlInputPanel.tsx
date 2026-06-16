@@ -1,4 +1,5 @@
 import type { ChangeEvent } from 'react'
+import { useLanguage } from '../../../i18n/LanguageContext'
 import type { HtmlAttribute } from '../types'
 import AttributeSelector from './AttributeSelector'
 
@@ -21,6 +22,23 @@ function HtmlInputPanel({
   onAttributeChange,
   onFileChange,
 }: HtmlInputPanelProps) {
+  const { language } = useLanguage()
+  const copy = {
+    title: language === 'es' ? '1) Carga tu HTML' : '1) Load your HTML',
+    description:
+      language === 'es'
+        ? 'Sube un archivo .html o pega el contenido manualmente.'
+        : 'Upload an .html file or paste the content manually.',
+    upload: language === 'es' ? 'Subir .html' : 'Upload .html',
+    uploadLabel: language === 'es' ? 'Subir archivo HTML' : 'Upload HTML file',
+    attribute: language === 'es' ? 'Atributo a detectar' : 'Attribute to detect',
+    extracting: language === 'es' ? 'Detectando valores...' : 'Detecting values...',
+    active:
+      language === 'es' ? 'Detección automática activa' : 'Automatic detection active',
+    placeholder:
+      language === 'es' ? 'Pega aquí tu HTML completo' : 'Paste your full HTML here',
+  }
+
   const handleFileInput = (event: ChangeEvent<HTMLInputElement>) => {
     const [file] = event.target.files ?? []
     onFileChange(file ?? null)
@@ -31,27 +49,27 @@ function HtmlInputPanel({
     <section className="tool-panel">
       <header className="panel-head">
         <div>
-          <h3>1) Carga tu HTML</h3>
-          <p>Sube un archivo .html o pega el contenido manualmente.</p>
+          <h3>{copy.title}</h3>
+          <p>{copy.description}</p>
         </div>
         <label className="file-upload-btn">
-          Subir .html
+          {copy.upload}
           <input
             type="file"
             accept=".html,text/html"
             onChange={handleFileInput}
-            aria-label="Subir archivo HTML"
+            aria-label={copy.uploadLabel}
           />
         </label>
       </header>
 
       <div className="panel-controls">
         <div>
-          <p className="control-label">Atributo a detectar</p>
+          <p className="control-label">{copy.attribute}</p>
           <AttributeSelector value={attribute} onChange={onAttributeChange} />
         </div>
         <p className="extraction-status">
-          {isExtracting ? 'Detectando valores...' : 'Deteccion automatica activa'}
+          {isExtracting ? copy.extracting : copy.active}
         </p>
       </div>
 
@@ -59,7 +77,7 @@ function HtmlInputPanel({
         className="html-textarea"
         value={html}
         onChange={(event) => onHtmlChange(event.target.value)}
-        placeholder="Pega aqui tu HTML completo"
+        placeholder={copy.placeholder}
       />
 
       {extractError ? <p className="panel-error">{extractError}</p> : null}

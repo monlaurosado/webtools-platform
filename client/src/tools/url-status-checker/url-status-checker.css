@@ -1,0 +1,255 @@
+.url-checker-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.url-checker-page .tool-header,
+.url-panel,
+.url-results {
+  border: 1px solid #d8e1ee;
+  background: #ffffff;
+  border-radius: 8px;
+}
+
+.url-checker-page .tool-header {
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+  padding: 1.05rem 1.1rem;
+}
+
+.url-checker-page .tool-eyebrow {
+  margin: 0;
+  color: #5a6b83;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.url-checker-page .tool-header h2 {
+  margin: 0.3rem 0 0;
+  font-size: 1.3rem;
+  letter-spacing: 0;
+}
+
+.url-checker-page .tool-header p,
+.url-checker-page .panel-head p,
+.url-checker-page .results-head p,
+.url-actions p {
+  margin: 0.45rem 0 0;
+  color: #566174;
+  max-width: 76ch;
+}
+
+.url-panel,
+.url-results {
+  padding: 0.95rem;
+}
+
+.url-checker-page .panel-head,
+.url-checker-page .results-head,
+.url-actions {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.url-checker-page .panel-head h3,
+.url-checker-page .results-head h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.url-count {
+  border: 1px solid #d6e3f6;
+  background: #f3f7ff;
+  color: #28569d;
+  border-radius: 999px;
+  padding: 0.32rem 0.65rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.url-textarea {
+  width: 100%;
+  min-height: 190px;
+  margin-top: 0.9rem;
+  border: 1px solid #d2dceb;
+  border-radius: 8px;
+  padding: 0.75rem 0.8rem;
+  font: inherit;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  font-size: 0.81rem;
+  line-height: 1.45;
+  resize: vertical;
+  background: #fcfdff;
+}
+
+.url-textarea:focus {
+  outline: 2px solid #d8e7ff;
+  outline-offset: 1px;
+}
+
+.url-actions {
+  align-items: center;
+  margin-top: 0.85rem;
+}
+
+.url-checker-page .primary-btn {
+  border: 1px solid #2657b7;
+  background: #2a5fc5;
+  color: #ffffff;
+  border-radius: 8px;
+  height: 2.45rem;
+  padding: 0 1rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.url-checker-page .primary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.url-error {
+  margin: 0.8rem 0 0;
+  color: #a61717;
+  background: #fef1f1;
+  border: 1px solid #f6cccc;
+  border-radius: 8px;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.82rem;
+}
+
+.url-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 0.9rem;
+}
+
+.url-summary-grid div {
+  border: 1px solid #dce5f0;
+  background: #fbfcff;
+  border-radius: 8px;
+  padding: 0.7rem;
+}
+
+.url-summary-grid span {
+  display: block;
+  color: #65758b;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.url-summary-grid strong {
+  display: block;
+  margin-top: 0.18rem;
+  font-size: 1.12rem;
+}
+
+.url-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #dce5f0;
+  border-radius: 8px;
+  background: #ffffff;
+  margin-top: 0.95rem;
+}
+
+.url-table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.url-table th,
+.url-table td {
+  border-bottom: 1px solid #e3ebf4;
+  padding: 0.52rem 0.58rem;
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.redirect-empty {
+  color: #64748b;
+}
+
+.redirect-list {
+  margin: 0;
+  padding-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.redirect-list li {
+  padding-left: 0.15rem;
+}
+
+.redirect-list strong,
+.redirect-list span {
+  display: block;
+}
+
+.redirect-list strong {
+  color: #1f4e99;
+  font-size: 0.76rem;
+}
+
+.url-table th {
+  color: #5d6f86;
+  background: #f6f9fd;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.url-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.status-chip {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 0.16rem 0.48rem;
+  font-weight: 800;
+  border: 1px solid #d8e2ef;
+  color: #566174;
+  background: #f8fafc;
+}
+
+.status-chip.is-ok {
+  border-color: #cde3d4;
+  background: #effaf2;
+  color: #18603a;
+}
+
+.status-chip.is-failed {
+  border-color: #f2d1d1;
+  background: #fff3f3;
+  color: #8b1e1e;
+}
+
+@media (max-width: 960px) {
+  .url-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .url-checker-page .panel-head,
+  .url-checker-page .results-head,
+  .url-actions {
+    flex-direction: column;
+  }
+
+  .url-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

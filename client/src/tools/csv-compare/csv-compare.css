@@ -1,0 +1,230 @@
+.csv-compare-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.csv-compare-page .tool-header,
+.csv-compare-panel,
+.csv-compare-results {
+  border: 1px solid #d8e1ee;
+  background: #ffffff;
+  border-radius: 8px;
+}
+
+.csv-compare-page .tool-header {
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+  padding: 1.05rem 1.1rem;
+}
+
+.csv-compare-page .tool-eyebrow {
+  margin: 0;
+  color: #5a6b83;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.csv-compare-page .tool-header h2 {
+  margin: 0.3rem 0 0;
+  font-size: 1.3rem;
+  letter-spacing: 0;
+}
+
+.csv-compare-page .tool-header p {
+  margin: 0.45rem 0 0;
+  color: #566174;
+  max-width: 76ch;
+}
+
+.csv-compare-panel,
+.csv-compare-results {
+  padding: 0.95rem;
+}
+
+.csv-input-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.csv-input-grid label,
+.csv-compare-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.csv-input-grid span,
+.csv-compare-controls span {
+  color: #607086;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.csv-input-grid textarea {
+  min-height: 220px;
+}
+
+.csv-input-grid textarea,
+.csv-compare-controls input,
+.csv-compare-controls select {
+  border: 1px solid #d2dceb;
+  border-radius: 8px;
+  padding: 0.75rem 0.8rem;
+  font: inherit;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  font-size: 0.81rem;
+  background: #fcfdff;
+}
+
+.csv-compare-controls input,
+.csv-compare-controls select {
+  height: 2.35rem;
+  padding: 0 0.7rem;
+  font-family: inherit;
+  min-width: min(280px, 100%);
+}
+
+.csv-input-grid textarea:focus,
+.csv-compare-controls input:focus,
+.csv-compare-controls select:focus {
+  outline: 2px solid #d8e7ff;
+  outline-offset: 1px;
+}
+
+.csv-compare-controls {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-top: 0.85rem;
+}
+
+.csv-compare-page .primary-btn {
+  border: 1px solid #2657b7;
+  background: #2a5fc5;
+  color: #ffffff;
+  border-radius: 8px;
+  height: 2.45rem;
+  padding: 0 1rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.csv-compare-page .primary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.csv-compare-error {
+  margin: 0.8rem 0 0;
+  color: #a61717;
+  background: #fef1f1;
+  border: 1px solid #f6cccc;
+  border-radius: 8px;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.82rem;
+}
+
+.csv-compare-summary {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.csv-compare-summary div {
+  border: 1px solid #dce5f0;
+  background: #fbfcff;
+  border-radius: 8px;
+  padding: 0.7rem;
+}
+
+.csv-compare-summary span {
+  display: block;
+  color: #65758b;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.csv-compare-summary strong {
+  display: block;
+  margin-top: 0.18rem;
+  font-size: 1.12rem;
+}
+
+.csv-compare-section {
+  border-top: 1px solid #dce5f0;
+  margin-top: 0.95rem;
+  padding-top: 0.85rem;
+}
+
+.csv-compare-section h3 {
+  margin: 0 0 0.55rem;
+  font-size: 1rem;
+}
+
+.csv-compare-empty {
+  margin: 0;
+  color: #607086;
+  font-size: 0.86rem;
+}
+
+.csv-compare-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #dce5f0;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.csv-compare-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.csv-compare-table th,
+.csv-compare-table td {
+  border-bottom: 1px solid #e3ebf4;
+  padding: 0.52rem 0.58rem;
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.csv-compare-table th {
+  color: #5d6f86;
+  background: #f6f9fd;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.csv-compare-table tr:last-child td {
+  border-bottom: 0;
+}
+
+@media (max-width: 960px) {
+  .csv-input-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .csv-compare-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .csv-compare-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .csv-compare-summary {
+    grid-template-columns: 1fr;
+  }
+}

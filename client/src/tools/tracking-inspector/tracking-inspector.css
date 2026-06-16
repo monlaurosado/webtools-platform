@@ -1,0 +1,244 @@
+.tracking-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tracking-page .tool-header,
+.tracking-panel,
+.tracking-results {
+  border: 1px solid #d8e1ee;
+  background: #ffffff;
+  border-radius: 8px;
+}
+
+.tracking-page .tool-header {
+  background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+  padding: 1.05rem 1.1rem;
+}
+
+.tracking-page .tool-eyebrow {
+  margin: 0;
+  color: #5a6b83;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.tracking-page .tool-header h2 {
+  margin: 0.3rem 0 0;
+  font-size: 1.3rem;
+  letter-spacing: 0;
+}
+
+.tracking-page .tool-header p,
+.tracking-page .panel-head p,
+.tracking-actions p {
+  margin: 0.45rem 0 0;
+  color: #566174;
+  max-width: 76ch;
+}
+
+.tracking-panel,
+.tracking-results {
+  padding: 0.95rem;
+}
+
+.tracking-page .panel-head,
+.tracking-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+
+.tracking-page .panel-head h3,
+.tracking-section h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.tracking-limit {
+  border: 1px solid #d6e3f6;
+  background: #f3f7ff;
+  color: #28569d;
+  border-radius: 999px;
+  padding: 0.32rem 0.65rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.tracking-textarea {
+  width: 100%;
+  min-height: 230px;
+  margin-top: 0.9rem;
+  border: 1px solid #d2dceb;
+  border-radius: 8px;
+  padding: 0.75rem 0.8rem;
+  font: inherit;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  font-size: 0.81rem;
+  line-height: 1.45;
+  resize: vertical;
+  background: #fcfdff;
+}
+
+.tracking-textarea:focus {
+  outline: 2px solid #d8e7ff;
+  outline-offset: 1px;
+}
+
+.tracking-actions {
+  align-items: center;
+  margin-top: 0.85rem;
+}
+
+.tracking-page .primary-btn {
+  border: 1px solid #2657b7;
+  background: #2a5fc5;
+  color: #ffffff;
+  border-radius: 8px;
+  height: 2.45rem;
+  padding: 0 1rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tracking-page .primary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tracking-error {
+  margin: 0.8rem 0 0;
+  color: #a61717;
+  background: #fef1f1;
+  border: 1px solid #f6cccc;
+  border-radius: 8px;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.82rem;
+}
+
+.tracking-summary {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.tracking-summary div {
+  border: 1px solid #dce5f0;
+  background: #fbfcff;
+  border-radius: 8px;
+  padding: 0.7rem;
+}
+
+.tracking-summary span {
+  display: block;
+  color: #65758b;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.tracking-summary strong {
+  display: block;
+  margin-top: 0.18rem;
+  font-size: 1.12rem;
+}
+
+.tracking-section {
+  border-top: 1px solid #dce5f0;
+  margin-top: 0.95rem;
+  padding-top: 0.85rem;
+}
+
+.tracking-empty {
+  margin: 0.55rem 0 0;
+  color: #607086;
+  font-size: 0.86rem;
+}
+
+.tracking-warnings {
+  list-style: none;
+  margin: 0.55rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.tracking-warnings li {
+  border: 1px solid #f0cfb8;
+  background: #fff8f2;
+  color: #67340f;
+  border-radius: 8px;
+  padding: 0.55rem 0.65rem;
+  font-size: 0.83rem;
+}
+
+.tracking-warnings span {
+  display: inline-block;
+  background: #ffe8d4;
+  border-radius: 999px;
+  color: #743c12;
+  font-size: 0.72rem;
+  font-weight: 800;
+  margin-right: 0.45rem;
+  padding: 0.16rem 0.45rem;
+}
+
+.tracking-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #dce5f0;
+  border-radius: 8px;
+  background: #ffffff;
+  margin-top: 0.55rem;
+}
+
+.tracking-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.tracking-table th,
+.tracking-table td {
+  border-bottom: 1px solid #e3ebf4;
+  padding: 0.52rem 0.58rem;
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.tracking-table th {
+  color: #5d6f86;
+  background: #f6f9fd;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+.tracking-table tr:last-child td {
+  border-bottom: 0;
+}
+
+@media (max-width: 960px) {
+  .tracking-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .tracking-page .panel-head,
+  .tracking-actions {
+    flex-direction: column;
+  }
+
+  .tracking-summary {
+    grid-template-columns: 1fr;
+  }
+}
