@@ -9,21 +9,13 @@ interface MainLayoutProps {
 
 function MainLayout({ showHeader = true }: MainLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [isSidebarCollapsedDesktop, setIsSidebarCollapsedDesktop] = useState(false)
 
   const openSidebar = () => setIsSidebarOpen(true)
   const closeSidebar = () => setIsSidebarOpen(false)
-  const toggleDesktopSidebar = () =>
-    setIsSidebarCollapsedDesktop((currentValue) => !currentValue)
 
   return (
     <div className="app-shell">
-      <Sidebar
-        isOpen={isSidebarOpen}
-        isDesktopCollapsed={isSidebarCollapsedDesktop}
-        onClose={closeSidebar}
-        onToggleDesktopCollapse={toggleDesktopSidebar}
-      />
+      <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
 
       <div className="app-main">
         {showHeader ? <Header onMenuClick={openSidebar} /> : null}

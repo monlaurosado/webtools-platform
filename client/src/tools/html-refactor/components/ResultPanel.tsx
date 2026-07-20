@@ -11,18 +11,15 @@ interface ResultPanelProps {
 function ResultPanel({ html, copyState, onCopy, onDownload }: ResultPanelProps) {
   const { language } = useLanguage()
   const copy = {
-    title: language === 'es' ? '3) Resultado' : '3) Result',
+    title: language === 'es' ? 'Resultado' : 'Result',
     description:
       language === 'es'
-        ? 'Descarga, copia y valida el HTML final antes de usarlo.'
-        : 'Download, copy and validate the final HTML before using it.',
+        ? 'El HTML modificado está listo para copiar o descargar.'
+        : 'The updated HTML is ready to copy or download.',
     download: language === 'es' ? 'Descargar .html' : 'Download .html',
     copied: language === 'es' ? 'Copiado' : 'Copied',
     unavailable: language === 'es' ? 'No disponible' : 'Unavailable',
     copy: language === 'es' ? 'Copiar' : 'Copy',
-    preview: language === 'es' ? 'Vista previa' : 'Preview',
-    previewTitle:
-      language === 'es' ? 'Vista previa del resultado HTML' : 'HTML result preview',
   }
 
   return (
@@ -33,26 +30,21 @@ function ResultPanel({ html, copyState, onCopy, onDownload }: ResultPanelProps) 
           <p>{copy.description}</p>
         </div>
 
-        <button type="button" className="secondary-btn download-btn" onClick={onDownload}>
-          {copy.download}
-        </button>
+        <div className="panel-head-actions">
+          <button type="button" className="secondary-btn" onClick={onCopy}>
+            {copyState === 'copied'
+              ? copy.copied
+              : copyState === 'error'
+                ? copy.unavailable
+                : copy.copy}
+          </button>
+          <button type="button" className="secondary-btn" onClick={onDownload}>
+            {copy.download}
+          </button>
+        </div>
       </header>
 
-      <div className="result-editor">
-        <textarea className="result-textarea" value={html} readOnly />
-        <button type="button" className="secondary-btn copy-btn" onClick={onCopy}>
-          {copyState === 'copied'
-            ? copy.copied
-            : copyState === 'error'
-              ? copy.unavailable
-              : copy.copy}
-        </button>
-      </div>
-
-      <div className="result-preview">
-        <p>{copy.preview}</p>
-        <iframe title={copy.previewTitle} srcDoc={html} sandbox="" />
-      </div>
+      <textarea className="result-textarea" value={html} readOnly />
     </section>
   )
 }

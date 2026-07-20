@@ -19,10 +19,8 @@ const SAMPLE_JSON = `{
 
 const COPY = {
   en: {
-    eyebrow: 'Payload Inspector',
-    title: 'Map JSON payload paths and types',
-    description:
-      'Paste a webhook or API payload to extract fields, nested paths, array mappings, example values and structural warnings.',
+    title: 'Inspect JSON',
+    description: 'Paste JSON to list its paths, types, sample values and structural warnings.',
     inputTitle: 'JSON input',
     inputDescription: 'Payloads are parsed locally by the backend and never executed.',
     loadSample: 'Load sample',
@@ -57,10 +55,9 @@ const COPY = {
     },
   },
   es: {
-    eyebrow: 'Inspector de cargas JSON',
-    title: 'Mapea rutas y tipos de cargas JSON',
+    title: 'Inspecciona JSON',
     description:
-      'Pega un webhook o carga de API para extraer campos, rutas anidadas, mapeos de arrays, valores de ejemplo y avisos estructurales.',
+      'Pega un JSON para listar sus rutas, tipos, valores de ejemplo y avisos estructurales.',
     inputTitle: 'Entrada JSON',
     inputDescription: 'Las cargas se analizan localmente en el backend y nunca se ejecutan.',
     loadSample: 'Cargar ejemplo',
@@ -142,7 +139,6 @@ function PayloadInspectorPage() {
   return (
     <section className="payload-page">
       <header className="tool-header">
-        <p className="tool-eyebrow">{copy.eyebrow}</p>
         <h2>{copy.title}</h2>
         <p>{copy.description}</p>
       </header>
@@ -173,7 +169,7 @@ function PayloadInspectorPage() {
           <button
             type="button"
             className="primary-btn"
-            disabled={isAnalyzing}
+            disabled={isAnalyzing || json.trim().length === 0}
             onClick={() => {
               void analyzePayload()
             }}

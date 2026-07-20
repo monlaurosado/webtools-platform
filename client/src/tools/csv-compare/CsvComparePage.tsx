@@ -9,10 +9,9 @@ const MAX_ROWS = 20
 
 const COPY = {
   en: {
-    eyebrow: 'CSV Compare',
-    title: 'Reconcile two CSV exports by key',
+    title: 'Compare two CSV files',
     description:
-      'Compare two CSVs to find records only in one file, modified rows and duplicate keys before importing or reconciling exports.',
+      'Choose a key column to find missing, modified and duplicate rows.',
     emptyCsvs: 'Paste both CSV inputs before comparing.',
     missingKey: 'Choose a key column before comparing.',
     requestError: 'Could not compare CSVs.',
@@ -41,10 +40,9 @@ const COPY = {
     duplicateOf: 'Duplicate of',
   },
   es: {
-    eyebrow: 'Comparador CSV',
-    title: 'Concilia dos exportaciones CSV por clave',
+    title: 'Compara dos CSV',
     description:
-      'Compara dos CSV para encontrar registros presentes solo en un archivo, filas modificadas y claves duplicadas antes de importar o conciliar exportaciones.',
+      'Elige una columna clave para encontrar filas ausentes, modificadas y duplicadas.',
     emptyCsvs: 'Pega ambos CSV antes de comparar.',
     missingKey: 'Elige una columna clave antes de comparar.',
     requestError: 'No se pudieron comparar los CSV.',
@@ -181,7 +179,6 @@ function CsvComparePage() {
   return (
     <section className="csv-compare-page">
       <header className="tool-header">
-        <p className="tool-eyebrow">{copy.eyebrow}</p>
         <h2>{copy.title}</h2>
         <p>{copy.description}</p>
       </header>
@@ -233,7 +230,12 @@ function CsvComparePage() {
           <button
             type="button"
             className="primary-btn"
-            disabled={isComparing}
+            disabled={
+              isComparing ||
+              csvA.trim().length === 0 ||
+              csvB.trim().length === 0 ||
+              keyColumn.trim().length === 0
+            }
             onClick={() => {
               void compareCsvs()
             }}

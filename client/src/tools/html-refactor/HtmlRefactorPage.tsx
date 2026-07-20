@@ -7,26 +7,14 @@ import './html-refactor.css'
 
 const COPY = {
   en: {
-    eyebrow: 'HTML Attribute Refactor',
-    title: 'Extract and replace links in bulk',
-    descriptionStart: 'Supports',
-    descriptionMiddle: 'and',
-    descriptionEnd:
-      'attributes. You can skip individual links and apply only the changes you need.',
-    applying: 'Applying...',
-    apply: 'Apply changes',
-    note: 'Skipped or empty links stay unchanged.',
+    title: 'Replace HTML links in bulk',
+    description:
+      'Paste your HTML, choose href or src, and replace every matching value in one pass.',
   },
   es: {
-    eyebrow: 'Refactorización de atributos HTML',
-    title: 'Extrae y reemplaza enlaces de forma masiva',
-    descriptionStart: 'Compatible con atributos',
-    descriptionMiddle: 'y',
-    descriptionEnd:
-      'Puedes omitir enlaces individuales y aplicar solo los cambios que necesites.',
-    applying: 'Aplicando...',
-    apply: 'Aplicar cambios',
-    note: 'Los enlaces omitidos o vacíos se mantienen sin cambios.',
+    title: 'Reemplaza enlaces HTML en lote',
+    description:
+      'Pega tu HTML, elige href o src y sustituye todos los valores necesarios de una vez.',
   },
 } as const
 
@@ -52,48 +40,43 @@ function HtmlRefactorPage() {
     copyResult,
     downloadResult,
   } = useHtmlRefactor()
+  const changeCount = replacementEntries.filter(
+    (entry) => !entry.ignored && entry.replacement.trim().length > 0,
+  ).length
 
   return (
     <section className="html-refactor-page">
       <header className="tool-header">
-        <p className="tool-eyebrow">{copy.eyebrow}</p>
         <h2>{copy.title}</h2>
-        <p>
-          {copy.descriptionStart} <code>href</code> {copy.descriptionMiddle}{' '}
-          <code>src</code>
-          {language === 'es' ? '. ' : ' '}
-          {copy.descriptionEnd}
-        </p>
+        <p>{copy.description}</p>
       </header>
 
-      <HtmlInputPanel
-        html={html}
-        attribute={attribute}
-        isExtracting={isExtracting}
-        extractError={extractError}
-        onHtmlChange={setHtml}
-        onAttributeChange={setAttribute}
-        onFileChange={setHtmlFromFile}
-      />
+      <div className="html-workspace">
+        <HtmlInputPanel
+          html={html}
+          attribute={attribute}
+          isExtracting={isExtracting}
+          extractError={extractError}
+          onHtmlChange={setHtml}
+          onAttributeChange={setAttribute}
+          onFileChange={setHtmlFromFile}
+          onClear={() => setHtml('')}
+        />
 
-      <ReplacementList
-        entries={replacementEntries}
-        onReplacementChange={setReplacement}
-        onToggleIgnored={toggleIgnored}
-      />
-
-      <div className="tool-actions">
-        <button
-          type="button"
-          className="primary-btn"
-          onClick={() => {
+        <ReplacementList
+          entries={replacementEntries}
+          attribute={attribute}
+          hasHtml={html.trim().length > 0}
+          isExtracting={isExtracting}
+          isApplying={isApplying}
+          canApply={changeCount > 0 && !isExtracting && !isApplying}
+          changeCount={changeCount}
+          onReplacementChange={setReplacement}
+          onToggleIgnored={toggleIgnored}
+          onApply={() => {
             void applyChanges()
           }}
-          disabled={isApplying || isExtracting || html.trim().length === 0}
-        >
-          {isApplying ? copy.applying : copy.apply}
-        </button>
-        <p>{copy.note}</p>
+        />
       </div>
 
       {applyError ? <p className="tool-error">{applyError}</p> : null}

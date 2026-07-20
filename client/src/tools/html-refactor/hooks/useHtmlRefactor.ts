@@ -63,7 +63,7 @@ export const useHtmlRefactor = () => {
   const { language } = useLanguage()
   const copy = COPY[language]
   const [html, setHtmlState] = useState('')
-  const [attribute, setAttribute] = useState<HtmlAttribute>('href')
+  const [attribute, setAttributeState] = useState<HtmlAttribute>('href')
   const [extractedValues, setExtractedValues] = useState<string[]>([])
   const [rows, setRows] = useState<Record<string, ReplacementRowState>>({})
   const [resultHtml, setResultHtml] = useState('')
@@ -78,6 +78,13 @@ export const useHtmlRefactor = () => {
 
   const setHtml = (nextHtml: string) => {
     setHtmlState(nextHtml)
+    setResultHtml('')
+    setApplyError(null)
+    setCopyState('idle')
+  }
+
+  const setAttribute = (nextAttribute: HtmlAttribute) => {
+    setAttributeState(nextAttribute)
     setResultHtml('')
     setApplyError(null)
     setCopyState('idle')
@@ -186,6 +193,9 @@ export const useHtmlRefactor = () => {
         replacement,
       },
     }))
+    setResultHtml('')
+    setApplyError(null)
+    setCopyState('idle')
   }
 
   const toggleIgnored = (original: string) => {
@@ -200,6 +210,9 @@ export const useHtmlRefactor = () => {
         },
       }
     })
+    setResultHtml('')
+    setApplyError(null)
+    setCopyState('idle')
   }
 
   const setHtmlFromFile = async (file: File | null) => {

@@ -2,7 +2,6 @@ import { BrowserRouter, Navigate, Route, Routes, useParams } from 'react-router-
 import { LanguageProvider, useLanguage } from './i18n/LanguageContext'
 import { getToolDescription, getToolName } from './i18n/toolText'
 import MainLayout from './layout/MainLayout'
-import Dashboard from './pages/Dashboard'
 import { tools } from './registry/tools'
 import CampaignPreflightPage from './tools/campaign-preflight/CampaignPreflightPage'
 import CsvComparePage from './tools/csv-compare/CsvComparePage'
@@ -83,7 +82,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route element={<MainLayout />}>
-            <Route path="/" element={<Dashboard />} />
+            <Route path="/" element={<HtmlRefactorPage />} />
+            <Route path="/tools/html-refactor" element={<Navigate to="/" replace />} />
             <Route path="/tools/:toolId" element={<ToolRoutePage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

@@ -8,10 +8,8 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
 
 const COPY = {
   en: {
-    eyebrow: 'URL Status Checker',
-    title: 'Inspect status codes and redirects in batch',
-    description:
-      'Paste one HTTP or HTTPS URL per line. Internal hosts and private network destinations are blocked before requests are made.',
+    title: 'Check URLs and redirects',
+    description: 'Paste one URL per line to see its status, final URL and every redirect hop.',
     panelTitle: 'URLs',
     panelDescription: 'Maximum 50 URLs per request.',
     queued: 'queued',
@@ -20,7 +18,7 @@ const COPY = {
     requestError: 'Could not check URLs.',
     checking: 'Checking...',
     action: 'Check URLs',
-    note: 'Redirects are inspected manually with SSRF protections.',
+    note: 'Up to 50 public HTTP or HTTPS URLs.',
     results: 'Results',
     inspected: (count: number) => `${count} URL${count === 1 ? '' : 's'} inspected.`,
     total: 'Total',
@@ -37,10 +35,9 @@ const COPY = {
     hop: 'Hop',
   },
   es: {
-    eyebrow: 'Comprobador de estado de URLs',
-    title: 'Inspecciona códigos de estado y redirecciones por lotes',
+    title: 'Comprueba URLs y redirecciones',
     description:
-      'Pega una URL HTTP o HTTPS por línea. Los hosts internos y destinos de redes privadas se bloquean antes de hacer peticiones.',
+      'Pega una URL por línea para ver su estado, la URL final y cada salto de redirección.',
     panelTitle: 'URLs',
     panelDescription: 'Máximo 50 URLs por petición.',
     queued: 'en cola',
@@ -49,7 +46,7 @@ const COPY = {
     requestError: 'No se pudieron comprobar las URLs.',
     checking: 'Comprobando...',
     action: 'Comprobar URLs',
-    note: 'Las redirecciones se inspeccionan manualmente con protección SSRF.',
+    note: 'Hasta 50 URLs públicas HTTP o HTTPS.',
     results: 'Resultados',
     inspected: (count: number) =>
       `${count} ${count === 1 ? 'URL inspeccionada' : 'URLs inspeccionadas'}.`,
@@ -129,7 +126,6 @@ function UrlStatusCheckerPage() {
   return (
     <section className="url-checker-page">
       <header className="tool-header">
-        <p className="tool-eyebrow">{copy.eyebrow}</p>
         <h2>{copy.title}</h2>
         <p>{copy.description}</p>
       </header>
@@ -160,7 +156,7 @@ function UrlStatusCheckerPage() {
           <button
             type="button"
             className="primary-btn"
-            disabled={isChecking}
+            disabled={isChecking || urls.length === 0}
             onClick={() => {
               void checkUrls()
             }}

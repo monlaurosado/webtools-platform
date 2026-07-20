@@ -9,10 +9,9 @@ const MAX_PREVIEW_ROWS = 25
 
 const COPY = {
   en: {
-    eyebrow: 'Lead CSV Cleaner',
-    title: 'Clean and deduplicate lead exports',
+    title: 'Clean a CSV',
     description:
-      'Paste CSV, choose a key column, normalize email casing, trim cells and split duplicate leads into a separate export.',
+      'Paste a CSV, choose its key column and get clean and duplicate rows separately.',
     inputTitle: 'CSV input',
     inputDescription: 'Use comma-separated CSV with a header row.',
     limit: '1 MB max',
@@ -49,10 +48,9 @@ const COPY = {
     },
   },
   es: {
-    eyebrow: 'Limpiador de leads CSV',
-    title: 'Limpia y deduplica exportaciones de leads',
+    title: 'Limpia un CSV',
     description:
-      'Pega CSV, elige una columna clave, normaliza mayúsculas en correos electrónicos, recorta celdas y separa leads duplicados en una exportación independiente.',
+      'Pega un CSV, elige su columna clave y obtén por separado las filas limpias y duplicadas.',
     inputTitle: 'Entrada CSV',
     inputDescription: 'Usa CSV separado por comas con una fila de cabecera.',
     limit: '1 MB máximo',
@@ -226,7 +224,6 @@ function LeadCsvCleanerPage() {
   return (
     <section className="lead-csv-page">
       <header className="tool-header">
-        <p className="tool-eyebrow">{copy.eyebrow}</p>
         <h2>{copy.title}</h2>
         <p>{copy.description}</p>
       </header>
@@ -274,7 +271,7 @@ function LeadCsvCleanerPage() {
             onClick={() => {
               void cleanCsv()
             }}
-            disabled={isCleaning}
+            disabled={isCleaning || csv.trim().length === 0 || keyColumn.trim().length === 0}
           >
             {isCleaning ? copy.cleaning : copy.action}
           </button>
