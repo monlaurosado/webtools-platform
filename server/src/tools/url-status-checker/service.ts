@@ -1,5 +1,6 @@
 import { lookup } from "dns/promises";
-import net from "net";
+import net from "node:net";
+import { fetchPublicHeaders, isBlockedAddress } from "../../network/safe-request";
 import {
   FetchLike,
   FetchLikeResponse,
@@ -18,6 +19,7 @@ export const ERROR_MESSAGES = {
   tooManyRedirects: "Too many redirects.",
   requestTimedOut: "Request timed out.",
   requestFailed: "Request failed.",
+  busy: "URL checker is busy. Please try again shortly.",
 } as const;
 
 const MAX_URLS = 50;
@@ -26,14 +28,11 @@ const MAX_REDIRECTS = 5;
 const REQUEST_TIMEOUT_MS = 10_000;
 const REDIRECT_STATUSES = new Set([300, 301, 302, 303, 307, 308]);
 
-const defaultFetch: FetchLike = async (url, init) => {
-  const response = await fetch(url, init);
-  return {
-    status: response.status,
-    url: response.url,
-    headers: response.headers,
-  };
-};
+const DNS_TIMEOUT_MS = 5_000;
+const BATCH_TIMEOUT_MS = 30_000;
+const MAX_CONCURRENT_BATCHES = 4;
+const URL_WORKERS = 4;
+let activeBatches = 0;
 
 const defaultResolveHost: ResolveHost = async (hostname) => {
   return lookup(hostname, { all: true });
@@ -54,146 +53,75 @@ const ensureUrls = (urls: unknown): string[] => {
   return urls;
 };
 
-const parseIPv4 = (address: string): number[] | null => {
-  const parts = address.split(".");
-  if (parts.length !== 4) {
-    return null;
-  }
+type SafeTarget = { url: URL; addresses: Awaited<ReturnType<ResolveHost>> };
 
-  const octets = parts.map((part) => Number(part));
-  if (
-    octets.some(
-      (octet, index) =>
-        !Number.isInteger(octet) ||
-        octet < 0 ||
-        octet > 255 ||
-        String(octet) !== parts[index],
-    )
-  ) {
-    return null;
-  }
-
-  return octets;
-};
-
-const isPrivateIPv4 = (address: string): boolean => {
-  const octets = parseIPv4(address);
-  if (!octets) {
-    return false;
-  }
-
-  const [first, second] = octets;
-
-  return (
-    first === 0 ||
-    first === 10 ||
-    first === 127 ||
-    (first === 169 && second === 254) ||
-    (first === 172 && second >= 16 && second <= 31) ||
-    (first === 192 && second === 168)
-  );
-};
-
-const isPrivateIPv6 = (address: string): boolean => {
-  const normalized = address.toLowerCase();
-  return (
-    normalized === "::1" ||
-    normalized === "0:0:0:0:0:0:0:1" ||
-    normalized.startsWith("fc") ||
-    normalized.startsWith("fd") ||
-    normalized.startsWith("fe8") ||
-    normalized.startsWith("fe9") ||
-    normalized.startsWith("fea") ||
-    normalized.startsWith("feb")
-  );
-};
-
-const isBlockedIp = (address: string): boolean => {
-  const version = net.isIP(address);
-
-  if (version === 4) {
-    return isPrivateIPv4(address);
-  }
-
-  if (version === 6) {
-    return isPrivateIPv6(address);
-  }
-
-  return false;
-};
+const abortable = <T>(promise: Promise<T>, signal: AbortSignal): Promise<T> =>
+  new Promise((resolve, reject) => {
+    const onAbort = () => {
+      signal.removeEventListener("abort", onAbort);
+      reject(new Error(ERROR_MESSAGES.requestTimedOut));
+    };
+    if (signal.aborted) { onAbort(); return; }
+    signal.addEventListener("abort", onAbort, { once: true });
+    promise.then(resolve, reject).finally(() => signal.removeEventListener("abort", onAbort));
+  });
 
 const validateSafeUrl = async (
   urlInput: string,
   resolveHost: ResolveHost,
-): Promise<URL> => {
-  if (urlInput.length > MAX_URL_LENGTH) {
-    throw new Error(ERROR_MESSAGES.invalidUrl);
-  }
-
-  let parsedUrl: URL;
-
-  try {
-    parsedUrl = new URL(urlInput);
-  } catch {
-    throw new Error(ERROR_MESSAGES.invalidUrl);
-  }
-
-  if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
+  signal: AbortSignal,
+): Promise<SafeTarget> => {
+  if (urlInput.length > MAX_URL_LENGTH) throw new Error(ERROR_MESSAGES.invalidUrl);
+  let url: URL;
+  try { url = new URL(urlInput); }
+  catch { throw new Error(ERROR_MESSAGES.invalidUrl); }
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
     throw new Error(ERROR_MESSAGES.invalidProtocol);
   }
-
-  const hostname = parsedUrl.hostname.toLowerCase();
-
-  if (hostname === "localhost" || hostname.endsWith(".localhost")) {
+  if (url.username || url.password) throw new Error(ERROR_MESSAGES.blockedUrl);
+  const hostname = url.hostname.toLowerCase().replace(/^\[|\]$/g, "").replace(/\.$/, "");
+  if (hostname === "localhost" || hostname.endsWith(".localhost") || hostname.endsWith(".local")) {
     throw new Error(ERROR_MESSAGES.blockedUrl);
   }
-
-  if (net.isIP(hostname) !== 0) {
-    if (isBlockedIp(hostname)) {
-      throw new Error(ERROR_MESSAGES.blockedUrl);
+  const family = net.isIP(hostname);
+  let addresses: SafeTarget["addresses"];
+  if (family) addresses = [{ address: hostname, family }];
+  else {
+    const dnsController = new AbortController();
+    const onAbort = () => dnsController.abort();
+    signal.addEventListener("abort", onAbort, { once: true });
+    if (signal.aborted) dnsController.abort();
+    const timeout = setTimeout(() => dnsController.abort(), DNS_TIMEOUT_MS);
+    try { addresses = await abortable(resolveHost(hostname), dnsController.signal); }
+    catch (error) {
+      if (error instanceof Error && error.message === ERROR_MESSAGES.requestTimedOut) throw error;
+      throw new Error(ERROR_MESSAGES.requestFailed);
+    } finally {
+      clearTimeout(timeout);
+      signal.removeEventListener("abort", onAbort);
     }
-
-    return parsedUrl;
   }
-
-  const addresses = await resolveHost(hostname);
-  if (addresses.some(({ address }) => isBlockedIp(address))) {
+  if (!addresses.length || addresses.some(({ address }) => isBlockedAddress(address))) {
     throw new Error(ERROR_MESSAGES.blockedUrl);
   }
-
-  return parsedUrl;
-};
-
-const withTimeout = async (
-  url: string,
-  method: "HEAD" | "GET",
-  fetcher: FetchLike,
-): Promise<FetchLikeResponse> => {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-
-  try {
-    return await fetcher(url, {
-      method,
-      redirect: "manual",
-      signal: controller.signal,
-    });
-  } catch (error) {
-    if (error instanceof Error && error.name === "AbortError") {
-      throw new Error(ERROR_MESSAGES.requestTimedOut);
-    }
-
-    throw new Error(ERROR_MESSAGES.requestFailed);
-  } finally {
-    clearTimeout(timeout);
-  }
+  return { url, addresses };
 };
 
 const requestUrl = async (
-  url: string,
+  target: SafeTarget,
   fetcher: FetchLike,
+  signal: AbortSignal,
 ): Promise<FetchLikeResponse> => {
-  return withTimeout(url, "GET", fetcher);
+  try {
+    return await abortable(fetcher(target.url.toString(), {
+      method: "GET", redirect: "manual", signal, addresses: target.addresses,
+    }), signal);
+  } catch (error) {
+    if (signal.aborted || (error instanceof Error && error.name === "AbortError")) {
+      throw new Error(ERROR_MESSAGES.requestTimedOut);
+    }
+    throw new Error(ERROR_MESSAGES.requestFailed);
+  }
 };
 
 const createErrorResult = (
@@ -218,12 +146,13 @@ const inspectSingleUrl = async (
   index: number,
   fetcher: FetchLike,
   resolveHost: ResolveHost,
+  signal: AbortSignal,
 ): Promise<UrlInspectionResult> => {
   const redirects: UrlRedirectHop[] = [];
-  let currentUrl: URL;
+  let target: SafeTarget;
 
   try {
-    currentUrl = await validateSafeUrl(inputUrl, resolveHost);
+    target = await validateSafeUrl(inputUrl, resolveHost, signal);
   } catch (error) {
     const message = error instanceof Error ? error.message : ERROR_MESSAGES.invalidUrl;
     return createErrorResult(index, inputUrl, message);
@@ -233,7 +162,7 @@ const inspectSingleUrl = async (
     let response: FetchLikeResponse;
 
     try {
-      response = await requestUrl(currentUrl.toString(), fetcher);
+      response = await requestUrl(target, fetcher, signal);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : ERROR_MESSAGES.requestFailed;
@@ -242,7 +171,7 @@ const inspectSingleUrl = async (
         inputUrl,
         message,
         redirects,
-        currentUrl.toString(),
+        target.url.toString(),
       );
     }
 
@@ -255,21 +184,21 @@ const inspectSingleUrl = async (
           inputUrl,
           ERROR_MESSAGES.tooManyRedirects,
           redirects,
-          currentUrl.toString(),
+          target.url.toString(),
           response.status,
         );
       }
 
-      const nextUrlInput = new URL(location, currentUrl).toString();
-
-      let nextUrl: URL;
+      let nextUrlInput = location;
+      let nextTarget: SafeTarget;
       try {
-        nextUrl = await validateSafeUrl(nextUrlInput, resolveHost);
+        nextUrlInput = new URL(location, target.url).toString();
+        nextTarget = await validateSafeUrl(nextUrlInput, resolveHost, signal);
       } catch (error) {
         const message =
           error instanceof Error ? error.message : ERROR_MESSAGES.blockedUrl;
         redirects.push({
-          from: currentUrl.toString(),
+          from: target.url.toString(),
           to: nextUrlInput,
           statusCode: response.status,
         });
@@ -278,17 +207,17 @@ const inspectSingleUrl = async (
           inputUrl,
           message,
           redirects,
-          currentUrl.toString(),
+          target.url.toString(),
           response.status,
         );
       }
 
       redirects.push({
-        from: currentUrl.toString(),
-        to: nextUrl.toString(),
+        from: target.url.toString(),
+        to: nextTarget.url.toString(),
         statusCode: response.status,
       });
-      currentUrl = nextUrl;
+      target = nextTarget;
       continue;
     }
 
@@ -297,7 +226,7 @@ const inspectSingleUrl = async (
     return {
       index,
       inputUrl,
-      finalUrl: currentUrl.toString(),
+      finalUrl: target.url.toString(),
       statusCode: response.status,
       ok,
       redirects,
@@ -314,13 +243,30 @@ export const inspectUrls = async (
   } = {},
 ): Promise<InspectUrlsResponse> => {
   const urls = ensureUrls(urlsInput);
-  const fetcher = options.fetcher ?? defaultFetch;
+  const fetcher = options.fetcher ?? fetchPublicHeaders;
   const resolveHost = options.resolveHost ?? defaultResolveHost;
-  const results: UrlInspectionResult[] = [];
-
-  for (const [index, url] of urls.entries()) {
-    results.push(await inspectSingleUrl(url, index, fetcher, resolveHost));
-  }
+  if (activeBatches >= MAX_CONCURRENT_BATCHES) throw new Error(ERROR_MESSAGES.busy);
+  activeBatches += 1;
+  const results: UrlInspectionResult[] = new Array(urls.length);
+  const deadline = Date.now() + BATCH_TIMEOUT_MS;
+  let nextIndex = 0;
+  const worker = async () => {
+    while (nextIndex < urls.length) {
+      const index = nextIndex++;
+      const remaining = deadline - Date.now();
+      if (remaining <= 0) {
+        results[index] = createErrorResult(index, urls[index], ERROR_MESSAGES.requestTimedOut);
+        continue;
+      }
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), Math.min(REQUEST_TIMEOUT_MS, remaining));
+      try {
+        results[index] = await inspectSingleUrl(urls[index], index, fetcher, resolveHost, controller.signal);
+      } finally { clearTimeout(timeout); }
+    }
+  };
+  try { await Promise.all(Array.from({ length: Math.min(URL_WORKERS, urls.length) }, worker)); }
+  finally { activeBatches -= 1; }
 
   return {
     results,

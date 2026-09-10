@@ -1,0 +1,47 @@
+name: Validate WebTools and notify RosadoOS
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  standalone:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            client/package-lock.json
+            server/package-lock.json
+      - run: npm ci --prefix client
+      - run: npm ci --prefix server
+      - run: npm --prefix client run lint
+      - run: npm --prefix client run build
+      - run: npm --prefix server run build
+      - run: npm --prefix server test -- --run
+
+  notify-host:
+    needs: standalone
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Request combined validation for this exact commit
+        env:
+          ROSADOOS_DISPATCH_TOKEN: ${{ secrets.ROSADOOS_DISPATCH_TOKEN }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: node scripts/notify-rosadoos.mjs

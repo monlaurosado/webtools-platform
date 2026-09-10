@@ -20,4 +20,9 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    files: ['src/i18n/LanguageContext.tsx', 'src/runtime/RuntimeContext.tsx'],
+    // Context providers and their hooks intentionally share a small module.
+    rules: { 'react-refresh/only-export-components': 'off' },
+  },
 ])

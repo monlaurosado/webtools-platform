@@ -1,3 +1,4 @@
+import { useRuntime } from '../../runtime/RuntimeContext'
 import { useMemo, useState } from 'react'
 import { useLanguage } from '../../i18n/LanguageContext'
 import {
@@ -9,8 +10,6 @@ import { getFormWarningText } from '../form-inspector/warningText'
 import type { FormWarningCode } from '../form-inspector/types'
 import type { CampaignPreflightResponse, CampaignPreflightWarning } from './types'
 import './campaign-preflight.css'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
 
 const COPY = {
   en: {
@@ -150,6 +149,7 @@ const translateUrlWarningMessage = (message: string, language: 'en' | 'es') => {
 }
 
 function CampaignPreflightPage() {
+  const { apiBasePath } = useRuntime()
   const { language } = useLanguage()
   const copy = COPY[language]
   const [html, setHtml] = useState('')
@@ -169,7 +169,7 @@ function CampaignPreflightPage() {
     setError(null)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tools/campaign-preflight/check`, {
+      const response = await fetch(`${apiBasePath}/tools/campaign-preflight/check`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -281,7 +281,7 @@ function CampaignPreflightPage() {
           <p>{copy.queued(urls.length)}</p>
         </div>
 
-        {error ? <p className="preflight-error">{error}</p> : null}
+        {error ? <p role="alert" className="preflight-error">{error}</p> : null}
       </section>
 
       {result ? (

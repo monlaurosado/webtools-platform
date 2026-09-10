@@ -41,6 +41,8 @@ export type FetchLike = (
     method: "HEAD" | "GET";
     redirect: "manual";
     signal?: AbortSignal;
+    /** DNS results verified before connect; used by the production Node transport. */
+    addresses?: Array<{ address: string; family: number }>;
   },
 ) => Promise<FetchLikeResponse>;
 

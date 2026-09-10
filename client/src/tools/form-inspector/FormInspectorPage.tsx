@@ -1,3 +1,4 @@
+import { useRuntime } from '../../runtime/RuntimeContext'
 import { useState } from 'react'
 import { useLanguage } from '../../i18n/LanguageContext'
 import { readApiErrorMessage } from '../../i18n/messages'
@@ -6,8 +7,6 @@ import FormSummaryCard from './components/FormSummaryCard'
 import WarningsList from './components/WarningsList'
 import type { AnalyzeFormsResponse, InspectedForm } from './types'
 import './form-inspector.css'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
 
 const COPY = {
   en: {
@@ -63,6 +62,7 @@ const normalizeForms = (forms: unknown): InspectedForm[] => {
 }
 
 function FormInspectorPage() {
+  const { apiBasePath } = useRuntime()
   const { language } = useLanguage()
   const copy = COPY[language]
   const [html, setHtml] = useState('')
@@ -83,7 +83,7 @@ function FormInspectorPage() {
     setError(null)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tools/form-inspector/analyze`, {
+      const response = await fetch(`${apiBasePath}/tools/form-inspector/analyze`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -127,6 +127,7 @@ function FormInspectorPage() {
         </header>
 
         <textarea
+          aria-label={copy.inputTitle}
           className="form-html-textarea"
           value={html}
           onChange={(event) => {
@@ -150,7 +151,7 @@ function FormInspectorPage() {
           <p>{copy.note}</p>
         </div>
 
-        {error ? <p className="panel-error">{error}</p> : null}
+        {error ? <p role="alert" className="panel-error">{error}</p> : null}
       </section>
 
       <section className="forms-results">

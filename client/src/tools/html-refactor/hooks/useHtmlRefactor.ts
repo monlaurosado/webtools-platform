@@ -1,3 +1,4 @@
+import { useRuntime } from '../../../runtime/RuntimeContext'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLanguage } from '../../../i18n/LanguageContext'
 import { readApiErrorMessage } from '../../../i18n/messages'
@@ -9,8 +10,6 @@ import type {
   ReplacementEntry,
   ReplacementRowState,
 } from '../types'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
 
 const DEFAULT_ROW_STATE: ReplacementRowState = {
   replacement: '',
@@ -60,6 +59,7 @@ const normalizeValues = (values: unknown): string[] => {
 }
 
 export const useHtmlRefactor = () => {
+  const { apiBasePath } = useRuntime()
   const { language } = useLanguage()
   const copy = COPY[language]
   const [html, setHtmlState] = useState('')
@@ -78,6 +78,14 @@ export const useHtmlRefactor = () => {
 
   const setHtml = (nextHtml: string) => {
     setHtmlState(nextHtml)
+    if (nextHtml !== html) {
+      setIsExtracting(nextHtml.trim().length > 0)
+    }
+    setExtractError(null)
+    if (nextHtml.trim().length === 0) {
+      setExtractedValues([])
+      setRows({})
+    }
     setResultHtml('')
     setApplyError(null)
     setCopyState('idle')
@@ -85,6 +93,10 @@ export const useHtmlRefactor = () => {
 
   const setAttribute = (nextAttribute: HtmlAttribute) => {
     setAttributeState(nextAttribute)
+    if (nextAttribute !== attribute) {
+      setIsExtracting(html.trim().length > 0)
+      setExtractError(null)
+    }
     setResultHtml('')
     setApplyError(null)
     setCopyState('idle')
@@ -100,23 +112,18 @@ export const useHtmlRefactor = () => {
 
   useEffect(() => {
     if (html.trim().length === 0) {
-      setExtractedValues([])
-      setRows({})
-      setIsExtracting(false)
-      setExtractError(null)
       return
     }
 
     const controller = new AbortController()
     let isActive = true
 
-    setIsExtracting(true)
-    setExtractError(null)
-
     const timerId = window.setTimeout(() => {
+      setIsExtracting(true)
+      setExtractError(null)
       void (async () => {
         try {
-          const response = await fetch(`${API_BASE_URL}/api/tools/html-refactor/extract`, {
+          const response = await fetch(`${apiBasePath}/tools/html-refactor/extract`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -137,7 +144,11 @@ export const useHtmlRefactor = () => {
             return
           }
 
-          setExtractedValues(normalizeValues(payload.values))
+          const values = normalizeValues(payload.values)
+          setExtractedValues(values)
+          setRows((previousRows) => Object.fromEntries(
+            values.map((value) => [value, previousRows[value] ?? DEFAULT_ROW_STATE]),
+          ))
         } catch (error) {
           if (!isActive || controller.signal.aborted) {
             return
@@ -147,6 +158,7 @@ export const useHtmlRefactor = () => {
             error instanceof Error ? error.message : copy.extractError
           setExtractError(message)
           setExtractedValues([])
+          setRows({})
         } finally {
           if (isActive) {
             setIsExtracting(false)
@@ -160,19 +172,7 @@ export const useHtmlRefactor = () => {
       controller.abort()
       window.clearTimeout(timerId)
     }
-  }, [attribute, copy.extractError, html, language])
-
-  useEffect(() => {
-    setRows((previousRows) => {
-      const nextRows: Record<string, ReplacementRowState> = {}
-
-      for (const value of extractedValues) {
-        nextRows[value] = previousRows[value] ?? DEFAULT_ROW_STATE
-      }
-
-      return nextRows
-    })
-  }, [extractedValues])
+  }, [apiBasePath, attribute, copy.extractError, html, language])
 
   const replacementEntries = useMemo<ReplacementEntry[]>(() => {
     return extractedValues.map((original) => {
@@ -254,7 +254,7 @@ export const useHtmlRefactor = () => {
     setApplyError(null)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tools/html-refactor/replace`, {
+      const response = await fetch(`${apiBasePath}/tools/html-refactor/replace`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

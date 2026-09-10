@@ -1,10 +1,9 @@
+import { useRuntime } from '../../runtime/RuntimeContext'
 import { useState } from 'react'
 import { useLanguage } from '../../i18n/LanguageContext'
 import { readApiErrorMessage } from '../../i18n/messages'
 import type { AnalyzePayloadResponse } from './types'
 import './payload-inspector.css'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
 
 const SAMPLE_JSON = `{
   "event": "lead.created",
@@ -96,6 +95,7 @@ const COPY = {
 const displayValue = (value: string | null) => value ?? '—'
 
 function PayloadInspectorPage() {
+  const { apiBasePath } = useRuntime()
   const { language } = useLanguage()
   const copy = COPY[language]
   const [json, setJson] = useState('')
@@ -113,7 +113,7 @@ function PayloadInspectorPage() {
     setError(null)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tools/payload-inspector/analyze`, {
+      const response = await fetch(`${apiBasePath}/tools/payload-inspector/analyze`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -155,6 +155,7 @@ function PayloadInspectorPage() {
         </header>
 
         <textarea
+          aria-label={copy.inputTitle}
           className="payload-textarea"
           value={json}
           onChange={(event) => {
@@ -179,7 +180,7 @@ function PayloadInspectorPage() {
           <p>{copy.limit}</p>
         </div>
 
-        {error ? <p className="payload-error">{error}</p> : null}
+        {error ? <p role="alert" className="payload-error">{error}</p> : null}
       </section>
 
       {result ? (

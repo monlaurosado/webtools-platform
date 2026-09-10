@@ -1,60 +1,91 @@
-:root {
+.webtools-root {
+  display: block;
+  isolation: isolate;
+  width: 100%;
+  min-width: 0;
+  min-height: 100vh;
+  color-scheme: light;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-align: start;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: #172033;
   background: #f6f7f9;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  --border: #dfe3e8;
-  --border-strong: #cfd5dd;
-  --muted: #657084;
-  --surface: #ffffff;
-  --surface-soft: #f8f9fb;
-  --accent: #1769e0;
-  --accent-hover: #1257bd;
-  --focus: #9ec5ff;
-  --danger: #b42318;
+  --wt-border: #dfe3e8;
+  --wt-border-strong: #cfd5dd;
+  --wt-muted: #657084;
+  --wt-surface: #ffffff;
+  --wt-surface-soft: #f8f9fb;
+  --wt-accent: #1769e0;
+  --wt-accent-hover: #1257bd;
+  --wt-focus: #9ec5ff;
+  --wt-danger: #b42318;
 }
 
-* {
+.webtools-root,
+.webtools-root *,
+.webtools-root *::before,
+.webtools-root *::after {
   box-sizing: border-box;
 }
 
-html {
-  min-width: 320px;
-  min-height: 100%;
-  background: #f6f7f9;
+/* Scoped defaults keep this UI stable under a host's CSS reset. */
+.webtools-root :where(h1, h2, h3, h4, strong, b, th) {
+  font-weight: 700;
 }
 
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background: #f6f7f9;
+.webtools-root :where(p, ul, ol, pre) {
+  margin: 1em 0;
 }
 
-button,
-input,
-select,
-textarea {
+.webtools-root :where(h3) {
+  font-size: 1.17em;
+}
+
+.webtools-root :where(h4) {
+  margin: 1.33em 0;
+}
+
+.webtools-root :where(code, pre) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.webtools-root :where(button, input, select, textarea) {
+  letter-spacing: inherit;
+}
+
+.webtools-root :where(a:focus-visible) {
+  outline: 2px solid var(--wt-focus);
+  outline-offset: 3px;
+}
+
+.webtools-root button,
+.webtools-root input,
+.webtools-root select,
+.webtools-root textarea {
   font: inherit;
 }
 
-button,
-select,
-label[for],
-.file-upload-btn {
+.webtools-root button,
+.webtools-root select,
+.webtools-root label[for],
+.webtools-root .file-upload-btn {
   cursor: pointer;
 }
 
-button:disabled {
+.webtools-root button:disabled {
   cursor: not-allowed;
 }
 
-a {
+.webtools-root a {
   color: inherit;
 }
 
-.visually-hidden {
+.webtools-root .visually-hidden {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -66,13 +97,13 @@ a {
   border: 0;
 }
 
-.app-shell {
+.webtools-root .app-shell {
   min-height: 100vh;
   display: grid;
   grid-template-columns: 240px minmax(0, 1fr);
 }
 
-.sidebar {
+.webtools-root .sidebar {
   position: sticky;
   top: 0;
   height: 100vh;
@@ -81,19 +112,19 @@ a {
   padding: 1.1rem 0.85rem;
   overflow-x: hidden;
   overflow-y: auto;
-  border-right: 1px solid var(--border);
-  background: var(--surface);
+  border-right: 1px solid var(--wt-border);
+  background: var(--wt-surface);
   z-index: 30;
 }
 
-.sidebar-top {
+.webtools-root .sidebar-top {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   min-height: 3rem;
 }
 
-.brand {
+.webtools-root .brand {
   min-width: 0;
   display: flex;
   align-items: center;
@@ -102,7 +133,7 @@ a {
   text-decoration: none;
 }
 
-.brand-mark {
+.webtools-root .brand-mark {
   width: 2rem;
   height: 2rem;
   flex: 0 0 2rem;
@@ -115,33 +146,33 @@ a {
   font-weight: 800;
 }
 
-.brand-copy {
+.webtools-root .brand-copy {
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
 }
 
-.brand-copy strong {
+.webtools-root .brand-copy strong {
   font-size: 0.96rem;
   line-height: 1.2;
 }
 
-.brand-copy small {
-  color: var(--muted);
+.webtools-root .brand-copy small {
+  color: var(--wt-muted);
   font-size: 0.7rem;
   line-height: 1.3;
   white-space: nowrap;
 }
 
-.sidebar-nav {
+.webtools-root .sidebar-nav {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
   margin-top: 1.65rem;
 }
 
-.sidebar-section-label {
+.webtools-root .sidebar-section-label {
   margin: 0 0 0.45rem;
   padding: 0 0.6rem;
   color: #8a93a2;
@@ -150,7 +181,7 @@ a {
   text-transform: uppercase;
 }
 
-.sidebar-link {
+.webtools-root .sidebar-link {
   min-height: 2.5rem;
   display: flex;
   align-items: center;
@@ -163,18 +194,18 @@ a {
   font-weight: 600;
 }
 
-.sidebar-link:hover {
+.webtools-root .sidebar-link:hover {
   background: #f3f5f7;
   color: #172033;
 }
 
-.sidebar-link.is-active {
+.webtools-root .sidebar-link.is-active {
   background: #edf4ff;
   color: #1257bd;
 }
 
-.sidebar-link-icon,
-.header-tool-icon {
+.webtools-root .sidebar-link-icon,
+.webtools-root .header-tool-icon {
   width: 1.15rem;
   height: 1.15rem;
   flex: 0 0 1.15rem;
@@ -182,44 +213,65 @@ a {
   place-items: center;
 }
 
-.sidebar-link-icon svg,
-.header-tool-icon svg,
-.control-icon {
+.webtools-root .sidebar-link-icon svg,
+.webtools-root .header-tool-icon svg,
+.webtools-root .control-icon {
   width: 100%;
   height: 100%;
 }
 
-.sidebar-footer {
+.webtools-root .sidebar-footer {
   margin: auto 0.6rem 0;
   color: #8a93a2;
   font-size: 0.7rem;
 }
 
-.mobile-close-btn,
-.menu-btn {
+.webtools-root .mobile-close-btn,
+.webtools-root .menu-btn {
   width: 2.25rem;
   height: 2.25rem;
   display: grid;
   place-items: center;
-  border: 1px solid var(--border);
+  border: 1px solid var(--wt-border);
   border-radius: 6px;
-  background: var(--surface);
+  background: var(--wt-surface);
   color: #4c576a;
 }
 
-.mobile-close-btn {
+.webtools-root .mobile-close-btn {
   display: none;
 }
 
-.sidebar-backdrop {
+.webtools-root .sidebar-backdrop {
   display: none;
 }
 
-.app-main {
+.webtools-root .app-main {
   min-width: 0;
 }
 
-.app-header {
+.webtools-root .header-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 0.75rem;
+}
+
+.webtools-root .host-return {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  color: #1257bd;
+  font-size: 0.75rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.webtools-root .host-return:hover {
+  text-decoration: underline;
+}
+
+.webtools-root .app-header {
   position: sticky;
   top: 0;
   z-index: 20;
@@ -229,26 +281,26 @@ a {
   justify-content: space-between;
   gap: 1rem;
   padding: 0 1.5rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--wt-border);
   background: rgba(255, 255, 255, 0.96);
 }
 
-.header-left {
+.webtools-root .header-left {
   min-width: 0;
   display: flex;
   align-items: center;
   gap: 0.65rem;
 }
 
-.menu-btn {
+.webtools-root .menu-btn {
   display: none;
 }
 
-.header-tool-icon {
+.webtools-root .header-tool-icon {
   color: #657084;
 }
 
-.header-title {
+.webtools-root .header-title {
   min-width: 0;
   overflow: hidden;
   color: #30394a;
@@ -258,29 +310,29 @@ a {
   white-space: nowrap;
 }
 
-.language-select select {
+.webtools-root .language-select select {
   min-width: 3.8rem;
   height: 2rem;
   padding: 0 1.65rem 0 0.65rem;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--wt-border-strong);
   border-radius: 6px;
-  background: var(--surface);
+  background: var(--wt-surface);
   color: #30394a;
   font-size: 0.76rem;
   font-weight: 700;
 }
 
-.app-content {
+.webtools-root .app-content {
   width: min(100%, 1280px);
   margin: 0 auto;
   padding: 2rem clamp(1.25rem, 3vw, 3rem) 4rem;
 }
 
-.tool-header {
+.webtools-root .tool-header {
   margin-bottom: 1.25rem;
 }
 
-.tool-header h2 {
+.webtools-root .tool-header h2 {
   margin: 0;
   color: #111827;
   font-size: 1.72rem;
@@ -288,15 +340,15 @@ a {
   font-weight: 720;
 }
 
-.tool-header p {
+.webtools-root .tool-header p {
   max-width: 66ch;
   margin: 0.45rem 0 0;
-  color: var(--muted);
+  color: var(--wt-muted);
   font-size: 0.9rem;
   line-height: 1.55;
 }
 
-.tool-eyebrow {
+.webtools-root .tool-eyebrow {
   margin: 0 0 0.35rem;
   color: #7c8696;
   font-size: 0.69rem;
@@ -304,54 +356,54 @@ a {
   text-transform: uppercase;
 }
 
-.tool-panel,
-.url-panel,
-.csv-panel,
-.payload-panel,
-.csv-compare-panel,
-.url-results,
-.csv-results,
-.payload-results,
-.csv-compare-results {
-  border: 1px solid var(--border);
+.webtools-root .tool-panel,
+.webtools-root .url-panel,
+.webtools-root .csv-panel,
+.webtools-root .payload-panel,
+.webtools-root .csv-compare-panel,
+.webtools-root .url-results,
+.webtools-root .csv-results,
+.webtools-root .payload-results,
+.webtools-root .csv-compare-results {
+  border: 1px solid var(--wt-border);
   border-radius: 8px;
-  background: var(--surface);
+  background: var(--wt-surface);
 }
 
-.panel-head,
-.results-head {
+.webtools-root .panel-head,
+.webtools-root .results-head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
 }
 
-.panel-head h3,
-.results-head h3 {
+.webtools-root .panel-head h3,
+.webtools-root .results-head h3 {
   margin: 0;
   color: #20293a;
   font-size: 0.96rem;
   line-height: 1.35;
 }
 
-.panel-head p,
-.results-head p {
+.webtools-root .panel-head p,
+.webtools-root .results-head p {
   margin: 0.25rem 0 0;
-  color: var(--muted);
+  color: var(--wt-muted);
   font-size: 0.78rem;
   line-height: 1.45;
 }
 
-.panel-head-actions {
+.webtools-root .panel-head-actions {
   display: flex;
   align-items: center;
   gap: 0.45rem;
 }
 
-.primary-btn,
-.secondary-btn,
-.text-btn,
-.file-upload-btn {
+.webtools-root .primary-btn,
+.webtools-root .secondary-btn,
+.webtools-root .text-btn,
+.webtools-root .file-upload-btn {
   min-height: 2.35rem;
   display: inline-flex;
   align-items: center;
@@ -362,128 +414,136 @@ a {
   line-height: 1;
 }
 
-.primary-btn {
-  border: 1px solid var(--accent);
+.webtools-root .primary-btn {
+  border: 1px solid var(--wt-accent);
   padding: 0 0.9rem;
-  background: var(--accent);
+  background: var(--wt-accent);
   color: #ffffff;
 }
 
-.primary-btn:hover:not(:disabled) {
-  border-color: var(--accent-hover);
-  background: var(--accent-hover);
+.webtools-root .primary-btn:hover:not(:disabled) {
+  border-color: var(--wt-accent-hover);
+  background: var(--wt-accent-hover);
 }
 
-.primary-btn:disabled {
+.webtools-root .primary-btn:disabled {
   border-color: #a9c7ef;
   background: #a9c7ef;
   color: #ffffff;
 }
 
-.secondary-btn,
-.file-upload-btn {
-  border: 1px solid var(--border-strong);
+.webtools-root .secondary-btn,
+.webtools-root .file-upload-btn {
+  border: 1px solid var(--wt-border-strong);
   padding: 0 0.75rem;
-  background: var(--surface);
+  background: var(--wt-surface);
   color: #39445a;
 }
 
-.secondary-btn:hover,
-.file-upload-btn:hover {
+.webtools-root .secondary-btn:hover,
+.webtools-root .file-upload-btn:hover {
   border-color: #aeb6c2;
-  background: var(--surface-soft);
+  background: var(--wt-surface-soft);
 }
 
-.text-btn {
+.webtools-root .text-btn {
   border: 0;
   padding: 0 0.4rem;
   background: transparent;
-  color: var(--muted);
+  color: var(--wt-muted);
 }
 
-.text-btn:hover {
+.webtools-root .text-btn:hover {
   color: #172033;
 }
 
-.file-upload-btn input {
-  display: none;
+.webtools-root .file-upload-btn input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
-textarea,
-input,
-select {
-  border: 1px solid var(--border-strong);
+.webtools-root textarea,
+.webtools-root input,
+.webtools-root select {
+  border: 1px solid var(--wt-border-strong);
   border-radius: 6px;
-  background: var(--surface);
+  background: var(--wt-surface);
   color: #172033;
 }
 
-textarea::placeholder,
-input::placeholder {
+.webtools-root textarea::placeholder,
+.webtools-root input::placeholder {
   color: #9aa2af;
 }
 
-textarea:focus,
-input:focus,
-select:focus,
-button:focus-visible,
-.file-upload-btn:focus-within {
-  outline: 2px solid var(--focus);
+.webtools-root textarea:focus,
+.webtools-root input:focus,
+.webtools-root select:focus,
+.webtools-root button:focus-visible,
+.webtools-root .file-upload-btn:focus-within {
+  outline: 2px solid var(--wt-focus);
   outline-offset: 1px;
 }
 
-.tool-error,
-.panel-error,
-.url-error,
-.csv-error,
-.payload-error,
-.csv-compare-error {
+.webtools-root .tool-error,
+.webtools-root .panel-error,
+.webtools-root .url-error,
+.webtools-root .csv-error,
+.webtools-root .payload-error,
+.webtools-root .csv-compare-error {
   margin: 0;
   padding: 0.65rem 0.75rem;
   border: 1px solid #f0b9b4;
   border-radius: 6px;
   background: #fff5f4;
-  color: var(--danger);
+  color: var(--wt-danger);
   font-size: 0.8rem;
 }
 
-.tool-placeholder {
+.webtools-root .tool-placeholder {
   max-width: 38rem;
   padding: 1.25rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--wt-border);
   border-radius: 8px;
-  background: var(--surface);
+  background: var(--wt-surface);
 }
 
-.tool-placeholder h2,
-.tool-placeholder p {
+.webtools-root .tool-placeholder h2,
+.webtools-root .tool-placeholder p {
   margin-top: 0;
 }
 
 @media (max-width: 840px) {
-  .app-shell {
+  .webtools-root .app-shell {
     display: block;
   }
 
-  .sidebar {
+  .webtools-root .sidebar {
     position: fixed;
     inset: 0 auto 0 0;
     width: min(17rem, calc(100vw - 3rem));
     height: 100dvh;
+    visibility: hidden;
     transform: translateX(-102%);
     transition: transform 160ms ease;
   }
 
-  .sidebar.is-open {
+  .webtools-root .sidebar.is-open {
+    visibility: visible;
     transform: translateX(0);
   }
 
-  .mobile-close-btn,
-  .menu-btn {
+  .webtools-root .mobile-close-btn,
+  .webtools-root .menu-btn {
     display: grid;
   }
 
-  .sidebar-backdrop {
+  .webtools-root .sidebar-backdrop {
     position: fixed;
     inset: 0;
     z-index: 25;
@@ -495,41 +555,57 @@ button:focus-visible,
     transition: opacity 160ms ease;
   }
 
-  .sidebar-backdrop.is-visible {
+  .webtools-root .sidebar-backdrop.is-visible {
     opacity: 1;
     pointer-events: auto;
   }
 
-  .app-header {
+  .webtools-root .app-header {
     height: 3.5rem;
     padding: 0 0.9rem;
   }
 
-  .app-content {
+  .webtools-root .app-content {
     padding: 1.35rem 1rem 3rem;
   }
 }
 
 @media (max-width: 560px) {
-  .tool-header h2 {
+  .webtools-root .app-header {
+    height: auto;
+    min-height: 3.5rem;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding-block: 0.45rem;
+  }
+
+  .webtools-root .header-left {
+    flex: 1 1 10rem;
+  }
+
+  .webtools-root .header-actions {
+    margin-left: auto;
+  }
+
+  .webtools-root .tool-header h2 {
     font-size: 1.4rem;
   }
 
-  .panel-head,
-  .results-head {
+  .webtools-root .panel-head,
+  .webtools-root .results-head {
     align-items: stretch;
     flex-direction: column;
   }
 
-  .panel-head-actions {
+  .webtools-root .panel-head-actions {
     justify-content: flex-start;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  .webtools-root *,
+  .webtools-root *::before,
+  .webtools-root *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
   }

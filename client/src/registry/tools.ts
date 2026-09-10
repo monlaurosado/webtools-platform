@@ -70,7 +70,7 @@ export const tools: Tool[] = [
     descriptionEs: 'Analiza campos, métodos, acciones y avisos de formularios HTML.',
     path: '/tools/form-inspector',
     icon: 'form-inspector',
-    visible: false,
+    visible: true,
   },
   {
     id: 'tracking-inspector',
@@ -80,7 +80,7 @@ export const tools: Tool[] = [
     descriptionEs: 'Detecta scripts, proveedores y duplicados de seguimiento en HTML.',
     path: '/tools/tracking-inspector',
     icon: 'tracking-inspector',
-    visible: false,
+    visible: true,
   },
   {
     id: 'campaign-preflight',
@@ -90,7 +90,7 @@ export const tools: Tool[] = [
     descriptionEs: 'Revisa formularios, seguimiento y URLs de una página de destino.',
     path: '/tools/campaign-preflight',
     icon: 'campaign-preflight',
-    visible: false,
+    visible: true,
   },
 ]
 
