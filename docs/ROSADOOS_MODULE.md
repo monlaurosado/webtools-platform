@@ -25,7 +25,7 @@ Este repositorio heredó dependencias versionadas en `server/node_modules`. Las 
 
 ## Actualización del despliegue combinado
 
-`.github/workflows/validate-and-notify.yml` valida cada PR/push a `main`. En `main`, después de pasar los checks, envía `repository_dispatch` al repositorio privado `monlaurosado/RosadoOS`, incluyendo el SHA exacto. El anfitrión importa, valida la combinación y promociona una rama exclusiva de despliegue. Si la validación combinada falla, la versión publicada anterior se conserva.
+`.github/workflows/production-readiness.yml` valida cada PR/push a `main`. En `main`, después de pasar los checks, envía `repository_dispatch` al repositorio privado `monlaurosado/RosadoOS`, incluyendo el SHA exacto. El anfitrión importa, valida la combinación y promociona una rama exclusiva de despliegue. Si la validación combinada falla, la versión publicada anterior se conserva.
 
 Activación pendiente: configurar en Actions el secreto `ROSADOOS_DISPATCH_TOKEN`, un fine-grained PAT limitado a RosadoOS con `Contents: Read and write`, o un token vigente de una GitHub App con ese permiso. El token automático de este repositorio no tiene permisos sobre RosadoOS. Este script no crea/renueva tokens; si se usa PAT, controlar su caducidad. No añadirlo a `.env`, código ni Hostinger.
 
