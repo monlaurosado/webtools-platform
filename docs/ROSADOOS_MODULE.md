@@ -21,7 +21,7 @@ npm --prefix server run build
 npm --prefix server test -- --run
 ```
 
-Este repositorio heredó dependencias versionadas en `server/node_modules`. Las instalaciones pueden ensuciar el checkout; el exportador comprometido exige un checkout limpio, por lo que debe ejecutarse antes de instalar o desde otro checkout del mismo SHA. Su allowlist excluye siempre esa carpeta.
+Este repositorio heredó dependencias versionadas en `server/node_modules`. Las instalaciones pueden ensuciar el checkout; el exportador de commits exige un checkout limpio, por lo que debe ejecutarse antes de instalar o desde otro checkout del mismo SHA. Su lista permitida excluye siempre esa carpeta.
 
 ## Actualización del despliegue combinado
 
