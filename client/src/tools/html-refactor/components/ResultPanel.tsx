@@ -44,7 +44,7 @@ function ResultPanel({ html, copyState, onCopy, onDownload }: ResultPanelProps) 
         </div>
       </header>
 
-      <textarea className="result-textarea" value={html} readOnly />
+      <textarea aria-label={copy.title} className="result-textarea" value={html} readOnly />
     </section>
   )
 }

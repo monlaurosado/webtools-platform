@@ -1,28 +1,28 @@
-.url-checker-page {
+.webtools-root .url-checker-page {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.url-checker-page > .tool-header {
+.webtools-root .url-checker-page > .tool-header {
   margin-bottom: 0.1rem;
 }
 
-.url-panel,
-.url-results {
+.webtools-root .url-panel,
+.webtools-root .url-results {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
   padding: 1rem;
 }
 
-.url-count {
-  color: var(--muted);
+.webtools-root .url-count {
+  color: var(--wt-muted);
   font-size: 0.74rem;
   font-weight: 650;
 }
 
-.url-textarea {
+.webtools-root .url-textarea {
   width: 100%;
   min-height: 150px;
   padding: 0.75rem;
@@ -33,85 +33,85 @@
   resize: vertical;
 }
 
-.url-actions {
+.webtools-root .url-actions {
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
 
-.url-actions p {
+.webtools-root .url-actions p {
   margin: 0;
-  color: var(--muted);
+  color: var(--wt-muted);
   font-size: 0.75rem;
 }
 
-.url-summary-grid {
+.webtools-root .url-summary-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.55rem;
 }
 
-.url-summary-grid > div {
+.webtools-root .url-summary-grid > div {
   min-width: 0;
   padding: 0.7rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--wt-border);
   border-radius: 6px;
-  background: var(--surface-soft);
+  background: var(--wt-surface-soft);
 }
 
-.url-summary-grid span,
-.url-summary-grid strong {
+.webtools-root .url-summary-grid span,
+.webtools-root .url-summary-grid strong {
   display: block;
 }
 
-.url-summary-grid span {
+.webtools-root .url-summary-grid span {
   overflow: hidden;
-  color: var(--muted);
+  color: var(--wt-muted);
   font-size: 0.69rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.url-summary-grid strong {
+.webtools-root .url-summary-grid strong {
   margin-top: 0.2rem;
   color: #20293a;
   font-size: 1.05rem;
 }
 
-.url-table-wrap {
+.webtools-root .url-table-wrap {
   overflow-x: auto;
-  border: 1px solid var(--border);
+  border: 1px solid var(--wt-border);
   border-radius: 6px;
 }
 
-.url-table {
+.webtools-root .url-table {
   width: 100%;
   min-width: 940px;
   border-collapse: collapse;
   font-size: 0.75rem;
 }
 
-.url-table th,
-.url-table td {
+.webtools-root .url-table th,
+.webtools-root .url-table td {
   padding: 0.65rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--wt-border);
   text-align: left;
   vertical-align: top;
   overflow-wrap: anywhere;
 }
 
-.url-table th {
+.webtools-root .url-table th {
   background: #f7f8fa;
   color: #566174;
   font-size: 0.68rem;
   font-weight: 700;
 }
 
-.url-table tbody tr:last-child td {
+.webtools-root .url-table tbody tr:last-child td {
   border-bottom: 0;
 }
 
-.status-chip {
+.webtools-root .status-chip {
   display: inline-flex;
   min-width: 2.8rem;
   justify-content: center;
@@ -122,59 +122,59 @@
   font-weight: 750;
 }
 
-.status-chip.is-ok {
+.webtools-root .status-chip.is-ok {
   background: #e9f7ef;
   color: #167446;
 }
 
-.status-chip.is-failed {
+.webtools-root .status-chip.is-failed {
   background: #fff0ee;
   color: #a9362a;
 }
 
-.redirect-empty {
-  color: var(--muted);
+.webtools-root .redirect-empty {
+  color: var(--wt-muted);
 }
 
-.redirect-list {
+.webtools-root .redirect-list {
   min-width: 18rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.redirect-list li {
+.webtools-root .redirect-list li {
   display: grid;
   gap: 0.15rem;
   padding: 0.35rem 0.5rem;
   border-left: 2px solid #a9c7ef;
 }
 
-.redirect-list li + li {
+.webtools-root .redirect-list li + li {
   margin-top: 0.45rem;
 }
 
-.redirect-list strong {
+.webtools-root .redirect-list strong {
   color: #334155;
   font-size: 0.7rem;
 }
 
-.redirect-list span {
+.webtools-root .redirect-list span {
   overflow-wrap: anywhere;
   color: #5f6a7d;
 }
 
 @media (max-width: 760px) {
-  .url-summary-grid {
+  .webtools-root .url-summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .url-actions {
+  .webtools-root .url-actions {
     align-items: flex-start;
     flex-direction: column;
   }
 
-  .url-actions .primary-btn {
+  .webtools-root .url-actions .primary-btn {
     width: 100%;
   }
 }

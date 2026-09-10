@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useLanguage } from '../i18n/LanguageContext'
 import { getToolName } from '../i18n/toolText'
@@ -5,11 +6,19 @@ import { visibleTools } from '../registry/tools'
 import { CloseIcon, ToolIcon } from '../ui/icons'
 
 interface SidebarProps {
+  id: string
   isOpen: boolean
   onClose: () => void
 }
 
-function Sidebar({ isOpen, onClose }: SidebarProps) {
+function Sidebar({ id, isOpen, onClose }: SidebarProps) {
+  const sidebarRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    if (isOpen) {
+      sidebarRef.current?.querySelector<HTMLButtonElement>('button')?.focus()
+    }
+  }, [isOpen])
   const { language } = useLanguage()
   const copy = {
     tagline:
@@ -23,7 +32,30 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   return (
     <>
-      <aside className={`sidebar ${isOpen ? 'is-open' : ''}`}>
+      <aside
+        id={id}
+        ref={sidebarRef}
+        className={`sidebar ${isOpen ? 'is-open' : ''}`}
+        onKeyDown={(event) => {
+          if (!isOpen) return
+          if (event.key === 'Escape') {
+            event.preventDefault()
+            onClose()
+          }
+          if (event.key === 'Tab') {
+            const controls = sidebarRef.current?.querySelectorAll<HTMLElement>('a[href], button')
+            const first = controls?.[0]
+            const last = controls?.[controls.length - 1]
+            if (event.shiftKey && document.activeElement === first) {
+              event.preventDefault()
+              last?.focus()
+            } else if (!event.shiftKey && document.activeElement === last) {
+              event.preventDefault()
+              first?.focus()
+            }
+          }
+        }}
+      >
         <div className="sidebar-top">
           <NavLink to="/" className="brand" onClick={onClose} aria-label="WebTools">
             <span className="brand-mark" aria-hidden="true">WT</span>
@@ -70,6 +102,8 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
         className={`sidebar-backdrop ${isOpen ? 'is-visible' : ''}`}
         type="button"
         onClick={onClose}
+        tabIndex={-1}
+        aria-hidden={!isOpen}
         aria-label={copy.closeNavigation}
       />
     </>

@@ -80,13 +80,14 @@ function HtmlInputPanel({
       </div>
 
       <textarea
+        aria-label={copy.title}
         className="html-textarea"
         value={html}
         onChange={(event) => onHtmlChange(event.target.value)}
         placeholder={copy.placeholder}
       />
 
-      {extractError ? <p className="panel-error">{extractError}</p> : null}
+      {extractError ? <p role="alert" className="panel-error">{extractError}</p> : null}
     </section>
   )
 }

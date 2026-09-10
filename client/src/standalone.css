@@ -1,0 +1,8 @@
+/* Document defaults belong to the standalone entry point, never the module. */
+html,
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100%;
+  background: #f6f7f9;
+}

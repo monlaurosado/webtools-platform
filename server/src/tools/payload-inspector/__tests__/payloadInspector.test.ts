@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   ERROR_MESSAGES,
   MAX_JSON_BYTES,
+  MAX_JSON_DEPTH,
+  MAX_JSON_NODES,
   analyzePayload,
 } from "../service";
 
@@ -18,6 +20,20 @@ describe("analyzePayload", () => {
 
   it("rejects malformed JSON", () => {
     expect(() => analyzePayload("{ bad")).toThrow(ERROR_MESSAGES.malformedJson);
+  });
+
+  it("accepts 128 container levels but rejects deeper structures before walking them", () => {
+    const nested = (depth: number) => "[".repeat(depth) + "0" + "]".repeat(depth);
+    expect(analyzePayload(nested(MAX_JSON_DEPTH)).summary.arrays).toBe(MAX_JSON_DEPTH);
+    expect(() => analyzePayload(nested(MAX_JSON_DEPTH + 1))).toThrow(ERROR_MESSAGES.jsonTooDeep);
+  });
+
+  it("bounds total JSON nodes even for shallow inputs below the byte limit", () => {
+    const withinLimit = JSON.stringify(Array(MAX_JSON_NODES - 1).fill(0));
+    const overLimit = JSON.stringify(Array(MAX_JSON_NODES).fill(0));
+    expect(Buffer.byteLength(overLimit)).toBeLessThan(MAX_JSON_BYTES);
+    expect(analyzePayload(withinLimit).summary.scalars).toBe(MAX_JSON_NODES - 1);
+    expect(() => analyzePayload(overLimit)).toThrow(ERROR_MESSAGES.jsonTooComplex);
   });
 
   it("detects object root type", () => {

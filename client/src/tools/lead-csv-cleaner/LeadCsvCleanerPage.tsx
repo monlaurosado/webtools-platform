@@ -1,10 +1,10 @@
+import { useRuntime } from '../../runtime/RuntimeContext'
 import { useMemo, useState } from 'react'
 import { useLanguage } from '../../i18n/LanguageContext'
 import { readApiErrorMessage } from '../../i18n/messages'
 import type { CleanCsvResponse, CopyState, CopyTarget, CsvRow } from './types'
 import './lead-csv-cleaner.css'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
 const MAX_PREVIEW_ROWS = 25
 
 const COPY = {
@@ -104,6 +104,7 @@ const parseHeaderPreview = (csv: string): string[] => {
 const sampleRows = (rows: CsvRow[]) => rows.slice(0, MAX_PREVIEW_ROWS)
 
 function LeadCsvCleanerPage() {
+  const { apiBasePath } = useRuntime()
   const { language } = useLanguage()
   const copy = COPY[language]
   const [csv, setCsv] = useState('')
@@ -144,7 +145,7 @@ function LeadCsvCleanerPage() {
     setError(null)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tools/lead-csv-cleaner/clean`, {
+      const response = await fetch(`${apiBasePath}/tools/lead-csv-cleaner/clean`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -238,6 +239,7 @@ function LeadCsvCleanerPage() {
         </header>
 
         <textarea
+          aria-label={copy.inputTitle}
           className="csv-textarea"
           value={csv}
           onChange={(event) => setCsvInput(event.target.value)}
@@ -277,7 +279,7 @@ function LeadCsvCleanerPage() {
           </button>
         </div>
 
-        {error ? <p className="csv-error">{error}</p> : null}
+        {error ? <p role="alert" className="csv-error">{error}</p> : null}
       </section>
 
       {result ? (
@@ -353,7 +355,7 @@ function LeadCsvCleanerPage() {
                       : copy.copy}
                 </button>
               </header>
-              <textarea value={result.cleanCsv} readOnly />
+              <textarea aria-label={copy.cleanCsv} value={result.cleanCsv} readOnly />
             </section>
 
             <section className="csv-export">
@@ -373,7 +375,7 @@ function LeadCsvCleanerPage() {
                       : copy.copy}
                 </button>
               </header>
-              <textarea value={result.duplicateCsv} readOnly />
+              <textarea aria-label={copy.duplicateCsv} value={result.duplicateCsv} readOnly />
             </section>
           </div>
         </section>

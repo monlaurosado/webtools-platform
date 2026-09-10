@@ -1,10 +1,10 @@
+import { useRuntime } from '../../runtime/RuntimeContext'
 import { useMemo, useState } from 'react'
 import { useLanguage } from '../../i18n/LanguageContext'
 import { readApiErrorMessage } from '../../i18n/messages'
 import type { CsvCompareResponse, CsvCompareRow } from './types'
 import './csv-compare.css'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
 const MAX_ROWS = 20
 
 const COPY = {
@@ -83,6 +83,7 @@ const parseHeaderPreview = (csv: string): string[] => {
 const displayValue = (value: string | null) => value ?? '—'
 
 function CsvComparePage() {
+  const { apiBasePath } = useRuntime()
   const { language } = useLanguage()
   const copy = COPY[language]
   const [csvA, setCsvA] = useState('')
@@ -120,7 +121,7 @@ function CsvComparePage() {
     setError(null)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tools/csv-compare/compare`, {
+      const response = await fetch(`${apiBasePath}/tools/csv-compare/compare`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -244,7 +245,7 @@ function CsvComparePage() {
           </button>
         </div>
 
-        {error ? <p className="csv-compare-error">{error}</p> : null}
+        {error ? <p role="alert" className="csv-compare-error">{error}</p> : null}
       </section>
 
       {result ? (

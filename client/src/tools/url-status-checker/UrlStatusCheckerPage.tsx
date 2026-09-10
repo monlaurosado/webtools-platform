@@ -1,10 +1,9 @@
+import { useRuntime } from '../../runtime/RuntimeContext'
 import { useMemo, useState } from 'react'
 import { useLanguage } from '../../i18n/LanguageContext'
 import { readApiErrorMessage, translateUrlError } from '../../i18n/messages'
 import type { InspectUrlsResponse } from './types'
 import './url-status-checker.css'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
 
 const COPY = {
   en: {
@@ -80,6 +79,7 @@ const displayValue = (value: string | number | null) => {
 }
 
 function UrlStatusCheckerPage() {
+  const { apiBasePath } = useRuntime()
   const { language } = useLanguage()
   const copy = COPY[language]
   const [urlText, setUrlText] = useState('')
@@ -99,7 +99,7 @@ function UrlStatusCheckerPage() {
     setError(null)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tools/url-status-checker/inspect`, {
+      const response = await fetch(`${apiBasePath}/tools/url-status-checker/inspect`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -142,6 +142,7 @@ function UrlStatusCheckerPage() {
         </header>
 
         <textarea
+          aria-label={copy.panelTitle}
           className="url-textarea"
           value={urlText}
           onChange={(event) => {
@@ -166,7 +167,7 @@ function UrlStatusCheckerPage() {
           <p>{copy.note}</p>
         </div>
 
-        {error ? <p className="url-error">{error}</p> : null}
+        {error ? <p role="alert" className="url-error">{error}</p> : null}
       </section>
 
       {result ? (

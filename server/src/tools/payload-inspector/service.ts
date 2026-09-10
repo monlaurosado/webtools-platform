@@ -6,11 +6,15 @@ import {
 } from "./types";
 
 export const MAX_JSON_BYTES = 1024 * 1024;
+export const MAX_JSON_DEPTH = 128;
+export const MAX_JSON_NODES = 50_000;
 
 export const ERROR_MESSAGES = {
   invalidJsonInput: "Invalid json. Expected string.",
   jsonTooLarge: "JSON input exceeds the 1 MB limit.",
   malformedJson: "Malformed JSON input.",
+  jsonTooDeep: "JSON nesting exceeds the maximum depth of 128.",
+  jsonTooComplex: "JSON input exceeds the 50,000 node limit.",
 } as const;
 
 const TYPE_ORDER: PayloadValueType[] = [
@@ -73,6 +77,24 @@ const createFieldRecord = () => ({
   example: null as string | null,
 });
 
+/** Validate shape iteratively before recursive walking or serializing nested examples. */
+const ensureBoundedStructure = (payload: unknown): void => {
+  const pending = [{ value: payload, depth: 1 }];
+  let nodes = 1;
+  while (pending.length > 0) {
+    const { value, depth } = pending.pop()!;
+    if (value === null || typeof value !== "object") continue;
+    if (depth > MAX_JSON_DEPTH) throw new Error(ERROR_MESSAGES.jsonTooDeep);
+    for (const child of Object.values(value)) {
+      nodes += 1;
+      if (nodes > MAX_JSON_NODES) throw new Error(ERROR_MESSAGES.jsonTooComplex);
+      if (child !== null && typeof child === "object") {
+        pending.push({ value: child, depth: depth + 1 });
+      }
+    }
+  }
+};
+
 export const analyzePayload = (jsonInput: unknown): AnalyzePayloadResponse => {
   const json = ensureJson(jsonInput);
   let payload: unknown;
@@ -82,6 +104,8 @@ export const analyzePayload = (jsonInput: unknown): AnalyzePayloadResponse => {
   } catch {
     throw new Error(ERROR_MESSAGES.malformedJson);
   }
+
+  ensureBoundedStructure(payload);
 
   const fields = new Map<string, ReturnType<typeof createFieldRecord>>();
   const warnings: PayloadWarning[] = [];

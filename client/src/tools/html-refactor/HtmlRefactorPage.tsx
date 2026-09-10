@@ -79,7 +79,7 @@ function HtmlRefactorPage() {
         />
       </div>
 
-      {applyError ? <p className="tool-error">{applyError}</p> : null}
+      {applyError ? <p role="alert" className="tool-error">{applyError}</p> : null}
 
       {resultHtml ? (
         <ResultPanel

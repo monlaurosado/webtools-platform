@@ -10,19 +10,33 @@ interface LanguageContextValue {
 
 const LanguageContext = createContext<LanguageContextValue | null>(null)
 
-const readInitialLanguage = (): Language => {
-  const stored = window.localStorage.getItem('webtools-language')
-  return stored === 'es' || stored === 'en' ? stored : 'en'
+const readInitialLanguage = (fallback: Language): Language => {
+  try {
+    const stored = typeof window !== 'undefined'
+      ? window.localStorage.getItem('webtools-language')
+      : null
+    return stored === 'es' || stored === 'en' ? stored : fallback
+  } catch {
+    // Browsers may disable storage; language switching still works in memory.
+    return fallback
+  }
 }
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>(readInitialLanguage)
+export function LanguageProvider({
+  children,
+  initialLanguage = 'en',
+}: { children: ReactNode; initialLanguage?: Language }) {
+  const [language, setLanguageState] = useState<Language>(() => readInitialLanguage(initialLanguage))
 
   const value = useMemo<LanguageContextValue>(
     () => ({
       language,
       setLanguage(nextLanguage) {
-        window.localStorage.setItem('webtools-language', nextLanguage)
+        try {
+          window.localStorage.setItem('webtools-language', nextLanguage)
+        } catch {
+          // Persistence is optional, including in restricted embedded browsers.
+        }
         setLanguageState(nextLanguage)
       },
     }),
@@ -33,7 +47,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 }
 
 // The provider and its companion hook intentionally share one small module.
-// eslint-disable-next-line react-refresh/only-export-components
 export const useLanguage = () => {
   const context = useContext(LanguageContext)
 

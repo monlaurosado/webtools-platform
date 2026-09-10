@@ -1,10 +1,9 @@
+import { useRuntime } from '../../runtime/RuntimeContext'
 import { useState } from 'react'
 import { useLanguage } from '../../i18n/LanguageContext'
 import { readApiErrorMessage } from '../../i18n/messages'
 import type { AnalyzeTrackingResponse } from './types'
 import './tracking-inspector.css'
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
 
 const COPY = {
   en: {
@@ -88,6 +87,7 @@ const COPY = {
 const displayValue = (value: string | null) => value ?? '—'
 
 function TrackingInspectorPage() {
+  const { apiBasePath } = useRuntime()
   const { language } = useLanguage()
   const copy = COPY[language]
   const [html, setHtml] = useState('')
@@ -105,7 +105,7 @@ function TrackingInspectorPage() {
     setError(null)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tools/tracking-inspector/analyze`, {
+      const response = await fetch(`${apiBasePath}/tools/tracking-inspector/analyze`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -146,6 +146,7 @@ function TrackingInspectorPage() {
         </header>
 
         <textarea
+          aria-label={copy.inputTitle}
           className="tracking-textarea"
           value={html}
           onChange={(event) => {
@@ -170,7 +171,7 @@ function TrackingInspectorPage() {
           <p>{copy.note}</p>
         </div>
 
-        {error ? <p className="tracking-error">{error}</p> : null}
+        {error ? <p role="alert" className="tracking-error">{error}</p> : null}
       </section>
 
       {result ? (

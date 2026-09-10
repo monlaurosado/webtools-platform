@@ -71,3 +71,34 @@ export default defineConfig([
   },
 ])
 ```
+
+
+## Reusable module entry point
+
+The standalone Vite entry remains `src/main.tsx`. Hosts should import the default
+`App` from `src/App.tsx` and `src/index.css`, and mount the application in the
+browser (for Next.js, use a client wrapper and a dynamic import with `ssr: false`).
+
+```tsx
+<App
+  basename="/projects/webtools-platform"
+  apiBasePath="/api/modules/webtools"
+  hostHref="/projects"
+  initialLanguage="es"
+/>
+```
+
+`basename` scopes all React Router navigation, including redirects and deep links.
+The host must serve the same client mount for every descendant route. `apiBasePath`
+is the API namespace, including `/api`, but excluding `/tools`: for example, the
+HTML extractor calls `/api/modules/webtools/tools/html-refactor/extract`. This
+configuration is per application instance; imported modules do not read Vite
+variables. Only the standalone entry reads `VITE_API_BASE_URL`, retaining the
+existing origin-plus-`/api` behavior.
+
+The module loads each of its eight pages and page styles on demand. All reusable
+CSS is scoped to `.webtools-root`, and CSS variables use the `--wt-` prefix.
+`src/standalone.css` contains document defaults and must not be imported by a host.
+The optional host link is an ordinary document link that exits the module router.
+Language preference uses a module-specific storage key; unavailable storage is
+optional and does not prevent the application from opening or changing language.

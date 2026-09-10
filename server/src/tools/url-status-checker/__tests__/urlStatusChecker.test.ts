@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { FetchLike, ResolveHost } from "../types";
 import { ERROR_MESSAGES, inspectUrls } from "../service";
 
@@ -23,6 +23,8 @@ const response = (
 });
 
 describe("inspectUrls", () => {
+  afterEach(() => vi.useRealTimers());
+
   it("rejects non-array urls", async () => {
     await expect(inspectUrls("https://example.com")).rejects.toThrow(
       ERROR_MESSAGES.invalidUrls,
@@ -231,5 +233,72 @@ describe("inspectUrls", () => {
       failed: 2,
       blocked: 1,
     });
+  });
+
+  it.each([
+    "http://[::1]", "http://[::ffff:127.0.0.1]", "http://[::ffff:c0a8:1]",
+    "http://[fc00::1]", "http://[fe80::1]", "http://169.254.169.254",
+    "http://localhost.", "http://user:password@example.com",
+  ])("blocks %s without issuing a request", async (url) => {
+    const fetcher = vi.fn(async () => response(200));
+    const result = await inspectUrls([url], { fetcher, resolveHost: publicResolver });
+    expect(result.results[0].error).toBe(ERROR_MESSAGES.blockedUrl);
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+
+  it("passes the verified DNS pin to the transport, then revalidates redirects", async () => {
+    const resolveHost = vi.fn<ResolveHost>()
+      .mockResolvedValueOnce([{ address: "93.184.216.34", family: 4 }])
+      .mockResolvedValueOnce([{ address: "127.0.0.1", family: 4 }]);
+    const fetcher = vi.fn<FetchLike>().mockResolvedValue(response(302, { location: "/next" }));
+    const result = await inspectUrls(["https://rebind.example"], { fetcher, resolveHost });
+    expect(fetcher).toHaveBeenCalledOnce();
+    expect(fetcher.mock.calls[0][1].addresses).toEqual([{ address: "93.184.216.34", family: 4 }]);
+    expect(result.results[0].error).toBe(ERROR_MESSAGES.blockedUrl);
+  });
+
+  it("keeps malformed redirects as a per-URL failure", async () => {
+    const result = await inspectUrls(["https://example.com"], {
+      resolveHost: publicResolver,
+      fetcher: async () => response(302, { location: "http://[invalid" }),
+    });
+    expect(result.summary.failed).toBe(1);
+    expect(result.results[0].redirects).toHaveLength(1);
+  });
+
+  it("bounds an unresponsive DNS lookup", async () => {
+    vi.useFakeTimers();
+    const fetcher = vi.fn<FetchLike>();
+    const pending = inspectUrls(["https://example.com"], {
+      fetcher, resolveHost: () => new Promise(() => {}),
+    });
+    await vi.advanceTimersByTimeAsync(5000);
+    expect((await pending).results[0].error).toBe(ERROR_MESSAGES.requestTimedOut);
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+
+  it("limits active batches and releases capacity after timed-out requests", async () => {
+    vi.useFakeTimers();
+    const options = { fetcher: () => new Promise<Awaited<ReturnType<FetchLike>>>(() => {}), resolveHost: publicResolver };
+    const batches = Array.from({ length: 4 }, () => inspectUrls(["https://example.com"], options));
+    await expect(inspectUrls(["https://example.com"], options)).rejects.toThrow(ERROR_MESSAGES.busy);
+    await vi.advanceTimersByTimeAsync(10000);
+    const results = await Promise.all(batches);
+    expect(results.every((result) => result.results[0].error === ERROR_MESSAGES.requestTimedOut)).toBe(true);
+    expect((await inspectUrls([], options)).summary.total).toBe(0);
+  });
+
+  it("runs only four URL workers and stops a 50-URL batch at 30 seconds", async () => {
+    vi.useFakeTimers();
+    const fetcher = vi.fn<FetchLike>(() => new Promise(() => {}));
+    const pending = inspectUrls(Array.from({ length: 50 }, () => "https://example.com"), { fetcher, resolveHost: publicResolver });
+    await vi.advanceTimersByTimeAsync(1);
+    expect(fetcher).toHaveBeenCalledTimes(4);
+    await vi.advanceTimersByTimeAsync(29999);
+    const result = await pending;
+    expect(fetcher).toHaveBeenCalledTimes(12);
+    expect(result.results).toHaveLength(50);
+    expect(result.results.every((item) => item.error === ERROR_MESSAGES.requestTimedOut)).toBe(true);
+    expect(result.results.map((item) => item.index)).toEqual(Array.from({ length: 50 }, (_, i) => i));
   });
 });

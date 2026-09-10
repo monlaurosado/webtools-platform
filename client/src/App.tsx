@@ -1,23 +1,29 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useParams } from 'react-router-dom'
 import { LanguageProvider, useLanguage } from './i18n/LanguageContext'
-import { getToolDescription, getToolName } from './i18n/toolText'
+import type { Language } from './i18n/LanguageContext'
 import MainLayout from './layout/MainLayout'
-import { tools } from './registry/tools'
-import CampaignPreflightPage from './tools/campaign-preflight/CampaignPreflightPage'
-import CsvComparePage from './tools/csv-compare/CsvComparePage'
-import FormInspectorPage from './tools/form-inspector/FormInspectorPage'
-import HtmlRefactorPage from './tools/html-refactor/HtmlRefactorPage'
-import LeadCsvCleanerPage from './tools/lead-csv-cleaner/LeadCsvCleanerPage'
-import PayloadInspectorPage from './tools/payload-inspector/PayloadInspectorPage'
-import TrackingInspectorPage from './tools/tracking-inspector/TrackingInspectorPage'
-import UrlStatusCheckerPage from './tools/url-status-checker/UrlStatusCheckerPage'
+import { RuntimeProvider } from './runtime/RuntimeContext'
 
-function ToolRoutePage() {
-  const { toolId } = useParams()
+const toolPages = {
+  'html-refactor': lazy(() => import('./tools/html-refactor/HtmlRefactorPage')),
+  'form-inspector': lazy(() => import('./tools/form-inspector/FormInspectorPage')),
+  'lead-csv-cleaner': lazy(() => import('./tools/lead-csv-cleaner/LeadCsvCleanerPage')),
+  'url-status-checker': lazy(() => import('./tools/url-status-checker/UrlStatusCheckerPage')),
+  'payload-inspector': lazy(() => import('./tools/payload-inspector/PayloadInspectorPage')),
+  'csv-compare': lazy(() => import('./tools/csv-compare/CsvComparePage')),
+  'tracking-inspector': lazy(() => import('./tools/tracking-inspector/TrackingInspectorPage')),
+  'campaign-preflight': lazy(() => import('./tools/campaign-preflight/CampaignPreflightPage')),
+}
+
+function ToolRoutePage({ defaultToolId }: { defaultToolId?: string }) {
+  const { toolId = defaultToolId } = useParams()
   const { language } = useLanguage()
-  const tool = tools.find((item) => item.id === toolId)
+  const Page = toolId && Object.hasOwn(toolPages, toolId)
+    ? toolPages[toolId as keyof typeof toolPages]
+    : undefined
 
-  if (!tool) {
+  if (!Page) {
     return (
       <section className="tool-placeholder">
         <h2>{language === 'es' ? 'Herramienta no encontrada' : 'Tool not found'}</h2>
@@ -30,66 +36,38 @@ function ToolRoutePage() {
     )
   }
 
-  if (tool.id === 'html-refactor') {
-    return <HtmlRefactorPage />
-  }
-
-  if (tool.id === 'form-inspector') {
-    return <FormInspectorPage />
-  }
-
-  if (tool.id === 'lead-csv-cleaner') {
-    return <LeadCsvCleanerPage />
-  }
-
-  if (tool.id === 'url-status-checker') {
-    return <UrlStatusCheckerPage />
-  }
-
-  if (tool.id === 'payload-inspector') {
-    return <PayloadInspectorPage />
-  }
-
-  if (tool.id === 'csv-compare') {
-    return <CsvComparePage />
-  }
-
-  if (tool.id === 'tracking-inspector') {
-    return <TrackingInspectorPage />
-  }
-
-  if (tool.id === 'campaign-preflight') {
-    return <CampaignPreflightPage />
-  }
-
   return (
-    <section className="tool-placeholder">
-      <p className="tool-placeholder-kicker">{language === 'es' ? 'Módulo' : 'Module'}</p>
-      <h2>{getToolName(tool, language)}</h2>
-      <p>{getToolDescription(tool, language)}</p>
-      <p>
-        {language === 'es'
-          ? 'Esta vista está preparada y reservada para la implementación completa de la herramienta.'
-          : 'This view is ready and reserved for the full tool implementation.'}
-      </p>
-    </section>
+    <Suspense fallback={<p role="status">{language === 'es' ? 'Cargando herramienta…' : 'Loading tool…'}</p>}>
+      <Page key={toolId} />
+    </Suspense>
   )
 }
 
-function App() {
+export interface AppProps {
+  /** Public route at which the host mounts the complete application. */
+  basename?: string
+  /** API namespace including /api, without the /tools suffix. */
+  apiBasePath?: string
+  hostHref?: string
+  initialLanguage?: Language
+}
+
+function App({ basename = '/', apiBasePath = '/api', hostHref, initialLanguage = 'en' }: AppProps) {
   return (
-    <LanguageProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route element={<MainLayout />}>
-            <Route path="/" element={<HtmlRefactorPage />} />
-            <Route path="/tools/html-refactor" element={<Navigate to="/" replace />} />
-            <Route path="/tools/:toolId" element={<ToolRoutePage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </LanguageProvider>
+    <RuntimeProvider apiBasePath={apiBasePath} hostHref={hostHref}>
+      <LanguageProvider initialLanguage={initialLanguage}>
+        <BrowserRouter basename={basename}>
+          <Routes>
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<ToolRoutePage defaultToolId="html-refactor" />} />
+              <Route path="/tools/html-refactor" element={<Navigate to="/" replace />} />
+              <Route path="/tools/:toolId" element={<ToolRoutePage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </LanguageProvider>
+    </RuntimeProvider>
   )
 }
 
