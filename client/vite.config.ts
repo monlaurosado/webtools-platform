@@ -4,6 +4,10 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
+  css: {
+    // Plain CSS must not inherit PostCSS plugins from an embedding workspace.
+    postcss: { plugins: [] },
+  },
   server: {
     proxy: {
       '/api': {
