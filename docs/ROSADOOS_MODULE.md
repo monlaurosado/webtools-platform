@@ -8,7 +8,7 @@ La aplicación integrada está disponible en [davidrosado.es/projects/webtools-p
 
 RosadoOS y WebTools comparten la misma aplicación de Hostinger, configurada con Node.js 22 y pnpm 11.6.0. El despliegue independiente anterior de WebTools se conserva; el estado registrado de la cuenta es de 4 de las 5 plazas de aplicaciones en uso. Este repositorio sigue manteniendo una única fuente de WebTools, válida tanto para su ejecución independiente como para la exportación generada al anfitrión.
 
-La publicación inicial se comprobó con 44 verificaciones HTTP contra el dominio público, revisión de las ocho herramientas en la interfaz y el flujo de JSON en móvil. Estos resultados validan la versión publicada. La cadena completa de una actualización de este repositorio hasta su publicación automática en Hostinger todavía debe verificarse con una entrega posterior.
+La publicación inicial se comprobó con 44 verificaciones HTTP contra el dominio público, revisión de las ocho herramientas en la interfaz y el flujo de JSON en móvil. Estos resultados corresponden al punto de control inicial de las 11:00. En ese momento todavía no se había comprobado la cadena completa de una actualización de este repositorio hasta su publicación automática en Hostinger.
 
 ## Contrato
 
@@ -35,7 +35,7 @@ Este repositorio heredó dependencias versionadas en `server/node_modules`. Las 
 
 El enlace entre repositorios ya está configurado. `.github/workflows/production-readiness.yml` valida cada PR/push a `main`. En `main`, después de pasar `validate`, el job `notify-host` envía `repository_dispatch` con el evento `webtools-updated` al repositorio privado `monlaurosado/RosadoOS`, incluyendo el SHA completo del módulo.
 
-El anfitrión importa ese commit, valida la combinación y genera la rama de publicación `deploy/hostinger`, conectada a la misma aplicación de Hostinger que sirve el portfolio. Las actualizaciones automáticas del módulo se promocionan en esa rama generada; este flujo no modifica `main` de RosadoOS. Si la validación combinada falla, la versión publicada anterior se conserva. `main` de este repositorio sigue siendo la fuente mantenida del módulo y su modo independiente continúa disponible.
+El evento es una notificación de cambio: su SHA identifica qué actualización lo originó, pero no determina la versión que se publica. Al comenzar la validación combinada, el anfitrión selecciona los commits completos de las puntas vigentes de `main` de RosadoOS y WebTools. Así, una notificación retrasada no fuerza la publicación de un SHA antiguo. El anfitrión importa el commit del módulo seleccionado, valida esa combinación exacta y genera la rama de publicación `deploy/hostinger`, conectada a la misma aplicación de Hostinger que sirve el portfolio. Las actualizaciones automáticas del módulo se promocionan en esa rama generada; este flujo no modifica `main` de RosadoOS. Si la validación combinada falla, la versión publicada anterior se conserva. `main` de este repositorio sigue siendo la fuente mantenida del módulo y su modo independiente continúa disponible.
 
 ### Credencial de notificación
 
@@ -43,8 +43,10 @@ El secreto de Actions `ROSADOOS_DISPATCH_TOKEN` está configurado con el fine-gr
 
 El PAT caduca el **9 de diciembre de 2026**. Antes de esa fecha, renovar la credencial y actualizar el secreto `ROSADOOS_DISPATCH_TOKEN`, conservando el mismo alcance. El script no crea ni renueva tokens. El valor del token debe permanecer exclusivamente en el secreto de Actions; no se incluye en esta documentación, código, archivos `.env` ni configuración de Hostinger.
 
-### Comprobación de la próxima entrega
+### Comprobación de una entrega automática
 
-La primera publicación fue manual; configurar la credencial y la rama no demuestra por sí solo el recorrido automático. Para cerrar esa comprobación, seguir una actualización real de `main` de WebTools y confirmar, en orden: validación standalone, `notify-host`, validación combinada en RosadoOS, actualización de `deploy/hostinger` y publicación automática de ese commit en el dominio público.
+Para verificar una entrega automática, seguir una actualización real de `main` de WebTools y confirmar, en orden: validación standalone, `notify-host`, selección y validación combinada de los commits actuales en RosadoOS, actualización de `deploy/hostinger` y publicación automática del commit generado en el dominio público.
+
+Registrar en la PR de la entrega los enlaces a las ejecuciones, los SHAs seleccionados de ambos repositorios, el commit de despliegue y la comprobación del resultado público. La configuración de la credencial y la rama, o el éxito de la primera publicación manual, no sustituyen esta evidencia del recorrido completo.
 
 La documentación operativa completa, con activación, rollback y nuevos módulos, vive en `docs/PROJECT_MODULES.md` de RosadoOS.
